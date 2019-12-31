@@ -1,0 +1,7 @@
+{
+  "projPath": "/home/kiko/PhD/CodeDefenders_projs/ImprovedTokenizer",
+  "fileName": "ImprovedTokenizer",
+  "fullClassName": "ImprovedTokenizer",
+  "testName": "TestImprovedTokenizer",
+  "mutantBugsFileName": "landmark_diagnosis_presence/ImprovedTokenizer_muts.txt"
+}

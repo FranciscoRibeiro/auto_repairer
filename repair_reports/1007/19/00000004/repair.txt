@@ -1,0 +1,11 @@
+No mutant repairs the bug
+Mutant HSLColor_276.java is invalid
+Mutant HSLColor_278.java is invalid
+Mutant HSLColor_271.java is invalid
+Mutant HSLColor_279.java is invalid
+Mutant HSLColor_274.java is invalid
+Mutant HSLColor_277.java is invalid
+Mutant HSLColor_280.java is invalid
+Mutant HSLColor_272.java is invalid
+Mutant HSLColor_273.java is invalid
+Mutant HSLColor_275.java is invalid

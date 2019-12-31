@@ -1,0 +1,11 @@
+No mutant repairs the bug
+Mutant ByteVector_14.java is invalid
+Mutant ByteVector_19.java is invalid
+Mutant ByteVector_20.java is invalid
+Mutant ByteVector_11.java is invalid
+Mutant ByteVector_17.java is invalid
+Mutant ByteVector_16.java is invalid
+Mutant ByteVector_18.java is invalid
+Mutant ByteVector_13.java is invalid
+Mutant ByteVector_15.java is invalid
+Mutant ByteVector_12.java is invalid

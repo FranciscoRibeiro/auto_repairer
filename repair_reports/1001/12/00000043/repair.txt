@@ -1,0 +1,6 @@
+No mutant repairs the bug
+Mutant ByteArrayHashMap_23.java is invalid
+Mutant ByteArrayHashMap_19.java is invalid
+Mutant ByteArrayHashMap_20.java is invalid
+Mutant ByteArrayHashMap_22.java is invalid
+Mutant ByteArrayHashMap_21.java is invalid

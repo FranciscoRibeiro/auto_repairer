@@ -1,0 +1,22 @@
+Mutant HSLColor_180.java repairs the bug
+Mutant HSLColor_154.java repairs the bug
+Mutant HSLColor_160.java is invalid
+Mutant HSLColor_161.java is invalid
+Mutant HSLColor_186.java is invalid
+Mutant HSLColor_176.java is invalid
+Mutant HSLColor_175.java is invalid
+Mutant HSLColor_177.java is invalid
+Mutant HSLColor_179.java is invalid
+Mutant HSLColor_187.java is invalid
+Mutant HSLColor_185.java is invalid
+Mutant HSLColor_178.java is invalid
+Mutant HSLColor_201.java is invalid
+Mutant HSLColor_203.java is invalid
+Mutant HSLColor_204.java is invalid
+Mutant HSLColor_205.java is invalid
+Mutant HSLColor_159.java is invalid
+Mutant HSLColor_158.java is invalid
+Mutant HSLColor_184.java is invalid
+Mutant HSLColor_202.java is invalid
+Mutant HSLColor_188.java is invalid
+Mutant HSLColor_162.java is invalid
