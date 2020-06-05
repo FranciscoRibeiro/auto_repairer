@@ -16,17 +16,17 @@ class VarToConsReplacement: MutatorRepair<NameExpr>() {
         val methodDecl = getEnclosing(nameExpr) ?: return emptyList()
         val type = nameExpr.calculateResolvedType()
         if(type.isArray) return emptyList()
-//        val constants = mutableSetOf<LiteralStringValueExpr>()
 
         return if(isTypeNumber(type)){
-            val constants = methodDecl.findAll(LiteralStringValueExpr::class.java, { isNumeric(it) }).distinctBy { it.value }
+            val constants = methodDecl.findAll(LiteralStringValueExpr::class.java, { isNumeric(it) })
+                                    .distinctBy { it.value }
+                                    .map { it.clone() }
 
             val operation = nameExpr.findAncestor(BinaryExpr::class.java).orElse(null)
             return if(operation == null || !isArithmetic(operation.operator)) {
-                constants.map { it.clone() }
+                constants
             } else {
                 constants.filter { !invalidOperation(operation, nameExpr, it) }
-                        .map { it.clone() }
             }
         } else {
             emptyList()
@@ -39,7 +39,7 @@ class VarToConsReplacement: MutatorRepair<NameExpr>() {
             BinaryExpr.Operator.PLUS -> isZero(cons)
             BinaryExpr.Operator.MINUS -> isRHS(expr, variable) && isZero(cons)
             BinaryExpr.Operator.MULTIPLY -> isOne(cons)
-            BinaryExpr.Operator.DIVIDE -> isRHS(expr, variable) && isOne(cons)
+            BinaryExpr.Operator.DIVIDE -> isRHS(expr, variable) && (isOne(cons) || isZero(cons))
             else -> false
         }
     }
