@@ -27,7 +27,7 @@ public class ByteArrayHashMap<T> {
 
     @SuppressWarnings("unchecked")
     public ByteArrayHashMap(int initialCapacity, float loadFactor) {
-        if (initialCapacity <= 1)
+        if (initialCapacity > 1)
             throw new IllegalArgumentException("Illegal initial capacity: " + initialCapacity);
         if (initialCapacity > MAXIMUM_CAPACITY)
             initialCapacity = MAXIMUM_CAPACITY;

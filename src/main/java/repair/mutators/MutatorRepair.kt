@@ -1,12 +1,15 @@
 package repair.mutators
 
+import BuggyProgram
 import com.github.javaparser.ast.Node
 
 abstract class MutatorRepair<T: Node> {
-    fun repair(node: Node): List<Node> {
+    abstract val rank: Int
+
+    fun repair(program: BuggyProgram, node: Node): List<Node> {
         val checkedNode = node as? T ?: return emptyList()
-        return checkedRepair(checkedNode)
+        return checkedRepair(program, checkedNode)
     }
 
-    abstract fun checkedRepair(checkedNode: T): List<Node>
+    abstract fun checkedRepair(program: BuggyProgram, checkedNode: T): List<Node>
 }

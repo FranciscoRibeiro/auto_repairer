@@ -1,19 +1,22 @@
 package repair.mutators
 
+import BuggyProgram
 import com.github.javaparser.ast.expr.BinaryExpr
+import repair.mutators.utils.isRelational
 
-class RelationalOperatorReplacement: MutatorRepair<BinaryExpr>() {
-    override fun checkedRepair(binExpr: BinaryExpr): List<BinaryExpr> {
+class RelationalOperatorReplacement(val op: BinaryExpr.Operator? = null): MutatorRepair<BinaryExpr>() {
+    override val rank: Int
+        get() = 4
+
+    override fun checkedRepair(program: BuggyProgram, binExpr: BinaryExpr): List<BinaryExpr> {
         return if(isRelational(binExpr.operator)){
-            BinaryExpr.Operator.values()
-                    .filter { it != binExpr.operator && isRelational(it) }
-                    .map { binExpr.clone().setOperator(it) }
+            if(op == null){
+                BinaryExpr.Operator.values()
+                        .filter { it != binExpr.operator && isRelational(it) }
+                        .map { binExpr.clone().setOperator(it) }
+            } else {
+                listOf(binExpr.clone().setOperator(op))
+            }
         } else { emptyList() }
-    }
-
-    private fun isRelational(op: BinaryExpr.Operator): Boolean {
-        return op == BinaryExpr.Operator.EQUALS || op == BinaryExpr.Operator.NOT_EQUALS
-                || op == BinaryExpr.Operator.LESS || op == BinaryExpr.Operator.LESS_EQUALS
-                || op == BinaryExpr.Operator.GREATER || op == BinaryExpr.Operator.GREATER_EQUALS
     }
 }

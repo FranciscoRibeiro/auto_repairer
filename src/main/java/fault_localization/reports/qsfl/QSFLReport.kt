@@ -1,4 +1,4 @@
-package fault_localization.reports
+package fault_localization.reports.qsfl
 
 import java.io.File
 
@@ -6,8 +6,8 @@ class QSFLReport(path: File) {
     val diagnosis = QSFLDiagnosis(File(path, "diagnosis.txt"))
     val nodes = Nodes(File(path, "nodes.txt"))
 
-    fun mostLikelyFaulty(): List<Int> {
-        return diagnosis.mostLikelyFaulty()
+    fun mostLikelyFaulty(upTo: Int): Sequence<Sequence<Int>> {
+        return diagnosis.mostLikelyFaulty(upTo)
     }
 
     fun nodeInfo(faultyNodeIds: List<Int>): List<NodeInfo?> {

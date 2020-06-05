@@ -27,7 +27,7 @@ public class ByteArrayHashMap<T> {
 
     @SuppressWarnings("unchecked")
     public ByteArrayHashMap(int initialCapacity, float loadFactor) {
-        if (initialCapacity <= 1)
+        if (initialCapacity < 1)
             throw new IllegalArgumentException("Illegal initial capacity: " + initialCapacity);
         if (initialCapacity > MAXIMUM_CAPACITY)
             initialCapacity = MAXIMUM_CAPACITY;
@@ -35,7 +35,7 @@ public class ByteArrayHashMap<T> {
             throw new IllegalArgumentException("Illegal load factor: " + loadFactor);
         // Find a power of 2 >= initialCapacity
         int capacity = 1;
-        while (capacity < initialCapacity) capacity <<= 1;
+        while (capacity == initialCapacity) capacity <<= 1;
         this.loadFactor = loadFactor;
         threshold = (int) (capacity * loadFactor);
         table = new Entry[capacity];

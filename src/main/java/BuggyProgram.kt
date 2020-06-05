@@ -1,25 +1,35 @@
 import com.github.javaparser.StaticJavaParser
 import com.github.javaparser.ast.CompilationUnit
 import com.github.javaparser.ast.Node
+import com.github.javaparser.ast.body.CallableDeclaration
+import com.github.javaparser.ast.expr.NameExpr
+import com.github.javaparser.symbolsolver.JavaSymbolSolver
+import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSolver
+import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver
 import fault_localization.FaultLocalizationType
 import fault_localization.FaultLocalizationType.QSFL
 import fault_localization.FaultLocalizationType.SFL
-import fault_localization.reports.QSFLReport
 import fault_localization.reports.SFLReport
+import fault_localization.reports.qsfl.*
 import java.io.File
 
 class BuggyProgram(val path: String, val sourceFile: File) {
     val sflReport = SFLReport(File(path, "site/gzoltar/sfl"))
     val qsflReport = QSFLReport(File(path, "qsfl"))
     //val programTree = ProgramTree(StaticJavaParser.parse(sourceFile))
-    val tree = StaticJavaParser.parse(sourceFile)
+    val tree = parseAndSolve()
     //private val originalTree = ImmutableTree(programTree.tree.clone())
     private val originalTree = ImmutableTree(tree.clone())
 
-    fun mostLikelyFaulty(basedOn: FaultLocalizationType): List<Int> {
+    private fun parseAndSolve(): CompilationUnit {
+        StaticJavaParser.getConfiguration().setSymbolResolver(JavaSymbolSolver(CombinedTypeSolver(ReflectionTypeSolver())))
+        return StaticJavaParser.parse(sourceFile)
+    }
+
+    fun mostLikelyFaulty(basedOn: FaultLocalizationType, upTo: Int = 1): Sequence<Sequence<Int>> {
         return when(basedOn){
-            SFL -> sflReport.mostLikelyFaulty()
-            QSFL -> qsflReport.mostLikelyFaulty()
+            SFL -> sflReport.mostLikelyFaulty(upTo)
+            QSFL -> qsflReport.mostLikelyFaulty(upTo)
         }
     }
 
@@ -27,8 +37,8 @@ class BuggyProgram(val path: String, val sourceFile: File) {
         return programTree.nodesInLine(line)
     }*/
 
-    fun nodesInLine(line: Int): List<Node> {
-        return tree.findAll(Node::class.java, { isSameLine(it, line) }) ?: emptyList()
+    fun nodesInLine(line: Int): Sequence<Node> {
+        return tree.findAll(Node::class.java, { isSameLine(it, line) }).asSequence()
     }
 
     private fun isSameLine(node: Node?, line: Int): Boolean {
@@ -40,5 +50,47 @@ class BuggyProgram(val path: String, val sourceFile: File) {
 
     fun getOriginalTree(): CompilationUnit {
         return originalTree.getTree()
+    }
+
+    fun nodeInfo(nodeId: Int): NodeInfo? {
+        return qsflReport.nodeInfo(nodeId)
+    }
+
+    fun findNodes(landmark: Landmark): Sequence<Node> {
+        var associated: List<Node> = emptyList()
+        val paramNode = qsflReport.nodeInfo(landmark.parentId)
+        if(paramNode != null && paramNode is Parameter){
+            val methodNode = qsflReport.nodeInfo(paramNode.parentId)
+            if (methodNode != null && methodNode is Method){
+                val decl = tree.findFirst(CallableDeclaration::class.java, { hasNameAndParams(it, methodNode) })
+                if(decl.isPresent){
+                    val paramNameExpr = NameExpr(paramNode.name)
+                    associated = decl.get()
+                            .findAll(Node::class.java, { containsVar(it, paramNameExpr) })
+//                            .findAll(NameExpr::class.java, { it.name.asString() == paramNode.name }).asSequence()
+//                            .map { getLine(it) }
+//                            .filter { it != 0 }
+//                            .distinct() //variable may be used more than once in the same line
+//                            .flatMap { nodesInLine(it).asSequence() }
+//                            .filter { containsParam(it, NameExpr(paramNode.name)) }
+//                            .toList()
+                }
+            }
+        }
+        return associated.asSequence()
+    }
+
+    private fun containsVar(node: Node, nameExpr: NameExpr): Boolean {
+        return node.findAll(NameExpr::class.java, { it == nameExpr }).isNotEmpty()
+    }
+
+    private fun getLine(n: Node): Int {
+        return if(n.range.isPresent) n.range.get().begin.line else 0
+    }
+
+    private fun hasNameAndParams(decl: CallableDeclaration<*>, methodNode: Method): Boolean {
+        return decl.name.asString() == methodNode.name
+                && decl.parameters.size == methodNode.params.size
+                && methodNode.params.zip(decl.parameters).all { it.first == it.second.typeAsString }
     }
 }

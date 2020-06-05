@@ -4,7 +4,7 @@ data class Configuration(
         val testClassPath: String = "$projPath/target/test-classes",
         val mutantsPath: String = "mutants/${projPath.split("/").last()}",
         val mutantBugsFileName: String,
-        val srcPath: String = "$projPath/src/fault_localization.reports.main/java",
+        val srcPath: String = "$projPath/src/main/java",
         val fileName: String,
         val fullClassName: String,
         val testName: String,

@@ -1,39 +1,80 @@
-import com.github.javaparser.StaticJavaParser
-import com.github.javaparser.ast.Node
-import com.github.javaparser.ast.expr.BinaryExpr
 import fault_localization.FaultLocalizationType.SFL
+import fault_localization.FaultLocalizationType.QSFL
 import repair.BruteForceRepair
+import repair.LandmarkRepair
 import java.io.File
 
-fun main() {
-    val mutantIdentifier = "1007/19/00000012"
-    val fileName = "HSLColor"
-    val mutantFile = File("/home/kiko/PhD/CodeDefenders_projs/generated_mutants_2016/$mutantIdentifier/$fileName.java")
-    //val cu = StaticJavaParser.parse(File("/home/kiko/PhD/CodeDefenders_projs/generated_mutants_2016/1001/10/00000004/ByteArrayHashMap.java"))
+fun runCmd(cmd: String,
+           dir: String = System.getProperty("user.dir"),
+           out: File? = null): Int {
+    println(cmd)
+    var pb = ProcessBuilder()
+            .directory(File(dir))
+            .command(cmd.split(" "))
+            .redirectInput(ProcessBuilder.Redirect.INHERIT)
+            .redirectError(ProcessBuilder.Redirect.INHERIT)
+    if(out == null){
+        pb.redirectOutput(ProcessBuilder.Redirect.INHERIT)
+    } else {
+        out.appendText(cmd + "\n")
+        pb.redirectOutput(ProcessBuilder.Redirect.appendTo(out))
+    }
 
-    val buggyProgram = BuggyProgram("/home/kiko/PhD/CodeDefenders_projs/HSLColor/fl_reports/1007_19_00000012", mutantFile)
-    val bfRepairer = BruteForceRepair()
-    val alternatives = bfRepairer.repair(buggyProgram, SFL)
-    alternatives?.save() ?: println("No mutants generated")
-
-
-    /*val sflDiag = SFLDiagnosis(File("/home/kiko/PhD/CodeDefenders_projs/$fileName/fl_reports/${mutantIdentifier.replace("/", "_")}/site/gzoltar/sfl/txt/ochiai.ranking.csv"))
-    val compUnit = StaticJavaParser.parse(mutantFile)
-    val nodesInLine = compUnit
-            .findAll(Node::class.java,
-                    { isSameLine(it) })
-    val firstBE = compUnit
-            .findFirst(BinaryExpr::class.java,
-                    { isSameLine(it) })
-    val cloneBE = firstBE.get().clone()
-    cloneBE.setOperator(BinaryExpr.Operator.DIVIDE)
-    firstBE.get().replace(cloneBE)
-    println("hey ho")*/
+    return pb.start().waitFor()
 }
 
-fun isSameLine(node: Node?): Boolean {
-    if(node != null && node.range.isPresent){
-        val nodeRange = node.range.get()
-        return nodeRange.begin.line == 239 && nodeRange.end.line == 239
-    } else{ return false }
+private fun passTests(projDir: String): Boolean {
+    println("Testing...")
+    return runCmd("mvn test", projDir) == 0
+}
+
+private fun setupFix(projDir: String, fileName: String, fix: AlternativeProgram){
+    println("Fix: ${fix.insertedMutant}")
+    File("$projDir/src/main/java/$fileName.java").writeText(fix.toString())
+}
+
+fun main(args: Array<String>) {
+    /*val mutantIdentifier = "1007/19/00000012"
+    val fileName = "HSLColor"*/
+    /*val mutantIdentifier = "1001/10/00000017"
+    val fileName = "ByteArrayHashMap"*/
+    /*val mutantIdentifier = "1001/10/00000025"
+    val fileName = "ByteArrayHashMap"*/
+    /*val mutantIdentifier = "1019/10/00000031"
+    val fileName = "XmlElement"*/
+    /*val mutantIdentifier = "1011/62/00000006"
+    val fileName = "IntHashMap"*/
+    /*val mutantIdentifier = "1013/29/00000017"
+    val fileName = "Range"*/
+    /*val mutantIdentifier = "1001/12/00000029"
+    val fileName = "ByteArrayHashMap"*/
+    /*val mutantIdentifier = "1007/19/00000009"
+    val fileName = "HSLColor"*/
+    val mutantIdentifier = "1007/19/00000013"
+    val fileName = "HSLColor"
+    val mutantFile = File("${args[0]}/generated_mutants_2016/$mutantIdentifier/$fileName.java")
+
+//    setupFix("${args[0]}/$fileName", fileName, null)
+
+    /* parse program */
+    val buggyProgram = BuggyProgram(
+            "${args[0]}/$fileName/fl_reports/${mutantIdentifier.replace("/", "_")}",
+            mutantFile)
+
+    /* lazy creation of potential fixes based on landmarks */
+    val lRepairer = LandmarkRepair()
+    val landmarkAlternatives = lRepairer.repair(buggyProgram, QSFL)
+//    val y = landmarkAlternatives.toList()
+
+    /* lazy creation of potential fixes based on the mut ops ranking */
+    val bfRepairer = BruteForceRepair()
+    val bruteForceAlternatives = bfRepairer.repair(buggyProgram, SFL)
+//    val x = bruteForceAlternatives.toList()
+    /* stop when a mutant fixes the program */
+    (landmarkAlternatives + bruteForceAlternatives)
+            .forEach { println("yo"); File("tmp/${System.currentTimeMillis()}.java").writeText(it.toString()) }
+//            .map { setupFix("${args[0]}/$fileName", fileName, it) }
+//            .find { passTests("${args[0]}/$fileName") }
+
+    println("end")
 }

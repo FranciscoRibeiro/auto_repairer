@@ -1,7 +1,8 @@
 package scripts
 
-import fault_localization.reports.QSFLDiagnosis
-import fault_localization.reports.Nodes
+import fault_localization.reports.qsfl.Landmark
+import fault_localization.reports.qsfl.QSFLDiagnosis
+import fault_localization.reports.qsfl.Nodes
 import java.io.File
 
 fun main(args: Array<String>) {
@@ -18,8 +19,9 @@ fun main(args: Array<String>) {
 }
 
 fun extractMostLikelyLandmarks(qsflTriple: Triple<File, QSFLDiagnosis, Nodes>): Pair<String, List<String>> {
-    return Pair(qsflTriple.first.name,
-                qsflTriple.second.mostLikelyFaulty()
-                        .filter { qsflTriple.third[it]?.type == "LANDMARK" }
-                        .map { "$it ${qsflTriple.second[it]} LANDMARK" })
+//    return Pair(qsflTriple.first.name.replace("_", "/"),
+//                qsflTriple.second.mostLikelyFaulty(1)
+//                        .filter { qsflTriple.third[it] is Landmark }
+//                        .map { "$it ${qsflTriple.second[it]} LANDMARK" })
+    TODO()
 }

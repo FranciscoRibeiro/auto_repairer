@@ -2,41 +2,47 @@ package fault_localization.reports
 
 import java.io.File
 
-fun main() {
-    val sflDiag = SFLDiagnosis(File("/home/kiko/PhD/CodeDefenders_projs/HSLColor/fl_reports/1007_19_00000012/site/gzoltar/sfl/txt/ochiai.ranking.csv"))
-    sflDiag.faultyLines.forEach { i, d -> println("$i, $d") }
-}
+//fun main() {
+//    val sflDiag = SFLDiagnosis(File("/home/kiko/PhD/CodeDefenders_projs/HSLColor/fl_reports/1007_19_00000012/site/gzoltar/sfl/txt/ochiai.ranking.csv"))
+//    sflDiag.faultyLines.forEach { i, componentInfo ->  println("$i, $componentInfo")}
+//}
 
 class SFLDiagnosis {
-    val faultyLines = LinkedHashMap<Int, Double>()
+    var faultyLines: List<Map<Int, ComponentInfo>>
     var similarityCoefficient: String
 
     constructor(diagnosisFile: File, similarityCoefficient: String = "ochiai") {
-        diagnosisFile.useLines { parseLines(it) }
+        this.faultyLines = diagnosisFile.useLines { parseLines(it) }
         this.similarityCoefficient = similarityCoefficient
     }
 
-    private fun parseLines(csvLines: Sequence<String>) {
-        csvLines.drop(1) //ignore CSV header
-                .map { getLineAndProbability(it) }
-                .forEach { this[it.first] = it.second }
+    private fun parseLines(csvLines: Sequence<String>): List<Map<Int, ComponentInfo>> {
+        return csvLines.drop(1) //ignore CSV header
+                .map { getLineAndComponentInfo(it) }
+                .groupBy { it.second.probability }
+                .map { it.value.toMap() }
+//               .forEach { this[it.first] = it.second }
     }
 
-    private fun getLineAndProbability(line: String): Pair<Int, Double> {
-        val fields = line.split(";")
-        return Pair(fields[0].split(":")[1].toInt(), fields[1].toDouble())
+    private fun getLineAndComponentInfo(line: String): Pair<Int, ComponentInfo> {
+        val (compInfo, prob) = line.split(";")
+        val (classAndMethod, line) = compInfo.split(":")
+        val (className, methodSignature) = classAndMethod.split("#")
+        return Pair(line.toInt(), ComponentInfo(className.drop(1), methodSignature, prob.toDouble()))
     }
 
-    operator fun get(i: Int): Double? {
-        return faultyLines.get(i)
-    }
-
-    operator fun set(i: Int, value: Double) {
-        faultyLines.put(i, value)
-    }
-
-    fun mostLikelyFaulty(): List<Int> {
-        val highestProb = faultyLines.values.first()
-        return faultyLines.keys.takeWhile { key -> faultyLines[key] == highestProb }
+    fun mostLikelyFaulty(upTo: Int): Sequence<Sequence<Int>> {
+        return this.faultyLines.asSequence()
+                                .take(upTo)
+                                .map { it.asSequence().map { it.key } }
+//        var counter = 0
+//        var currentProb = faultyLines.values.first().probability
+//        return faultyLines.keys.takeWhile { key ->
+//            if(faultyLines[key]?.probability != currentProb) {
+//                currentProb = faultyLines[key]?.probability!!
+//                counter++
+//            }
+//            counter != upTo
+//            }
     }
 }
