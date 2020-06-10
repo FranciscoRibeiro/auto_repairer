@@ -11,7 +11,13 @@ class VarToConsReplacement: MutatorRepair<NameExpr>() {
         get() = 9
 
     override fun checkedRepair(program: BuggyProgram, nameExpr: NameExpr): List<LiteralStringValueExpr> {
-        if(isLeftSideAssign(nameExpr)) return emptyList()
+        val parent = getParent(nameExpr)
+        if(parent != null) {
+            when(parent) {
+                is AssignExpr -> if(parent.target === nameExpr) return emptyList()
+                is UnaryExpr -> if(!forNumbers(parent.operator)) return emptyList()
+            }
+        }
 
         val methodDecl = getEnclosing(nameExpr) ?: return emptyList()
         val type = nameExpr.calculateResolvedType()
@@ -22,15 +28,16 @@ class VarToConsReplacement: MutatorRepair<NameExpr>() {
                                     .distinctBy { it.value }
                                     .map { it.clone() }
 
-            val operation = nameExpr.findAncestor(BinaryExpr::class.java).orElse(null)
-            return if(operation == null || !isArithmetic(operation.operator)) {
-                constants
-            } else {
-                constants.filter { !invalidOperation(operation, nameExpr, it) }
-            }
-        } else {
-            emptyList()
-        }
+//            val operation = nameExpr.findAncestor(BinaryExpr::class.java).orElse(null)
+            return if(parent is BinaryExpr && isArithmetic(parent.operator)){
+                constants.filter { !invalidOperation(parent, nameExpr, it) }
+            } else constants
+//            return if(operation == null || !isArithmetic(operation.operator)) {
+//                constants
+//            } else {
+//                constants.filter { !invalidOperation(operation, nameExpr, it) }
+//            }
+        } else emptyList()
     }
 
     private fun invalidOperation(expr: BinaryExpr, variable: NameExpr, cons: LiteralStringValueExpr): Boolean {

@@ -1,5 +1,6 @@
 package repair.mutators.utils
 
+import com.github.javaparser.ast.Node
 import com.github.javaparser.ast.body.CallableDeclaration
 import com.github.javaparser.ast.body.ConstructorDeclaration
 import com.github.javaparser.ast.body.MethodDeclaration
@@ -93,13 +94,19 @@ fun isRHS(expr: BinaryExpr, variable: NameExpr): Boolean {
     return expr.right === variable
 }
 
+fun getParent(node: Node): Node? {
+    return node.parentNode.orElse(null)
+}
+
 fun getTargetOfAssign(expr: Expression): String? {
-    val parent = expr.parentNode.orElse(null)
-    return if(parent != null) {
-        when (parent) {
-            is AssignExpr -> parent.target.toString()
-            is VariableDeclarator -> parent.nameAsString
-            else -> null
-        }
-    } else null
+    val parent = getParent(expr) ?: return null
+    return when (parent) {
+        is AssignExpr -> parent.target.toString()
+        is VariableDeclarator -> parent.nameAsString
+        else -> null
+    }
+}
+
+fun forNumbers(op: UnaryExpr.Operator): Boolean {
+    return op == UnaryExpr.Operator.BITWISE_COMPLEMENT
 }
