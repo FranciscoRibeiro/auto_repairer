@@ -3,10 +3,8 @@ package repair.mutators.utils
 import com.github.javaparser.ast.body.CallableDeclaration
 import com.github.javaparser.ast.body.ConstructorDeclaration
 import com.github.javaparser.ast.body.MethodDeclaration
-import com.github.javaparser.ast.expr.AssignExpr
-import com.github.javaparser.ast.expr.BinaryExpr
-import com.github.javaparser.ast.expr.LiteralExpr
-import com.github.javaparser.ast.expr.NameExpr
+import com.github.javaparser.ast.body.VariableDeclarator
+import com.github.javaparser.ast.expr.*
 import com.github.javaparser.ast.type.PrimitiveType
 import com.github.javaparser.ast.type.Type
 import com.github.javaparser.resolution.UnsolvedSymbolException
@@ -93,4 +91,15 @@ fun isLeftSideAssign(nameExpr: NameExpr): Boolean {
 
 fun isRHS(expr: BinaryExpr, variable: NameExpr): Boolean {
     return expr.right === variable
+}
+
+fun getTargetOfAssign(expr: Expression): String? {
+    val parent = expr.parentNode.orElse(null)
+    return if(parent != null) {
+        when (parent) {
+            is AssignExpr -> parent.target.toString()
+            is VariableDeclarator -> parent.nameAsString
+            else -> null
+        }
+    } else null
 }

@@ -4,10 +4,7 @@ import BuggyProgram
 import com.github.javaparser.ast.body.Parameter
 import com.github.javaparser.ast.expr.LiteralExpr
 import com.github.javaparser.ast.expr.NameExpr
-import repair.mutators.utils.getEnclosing
-import repair.mutators.utils.isInScope
-import repair.mutators.utils.isNumeric
-import repair.mutators.utils.isTypeNumber
+import repair.mutators.utils.*
 
 class ConsToVarReplacement: MutatorRepair<LiteralExpr>() {
     override val rank: Int
@@ -26,7 +23,10 @@ class ConsToVarReplacement: MutatorRepair<LiteralExpr>() {
                     .map { it.nameAsString }
             )
         }
-        val res = varNames.map { NameExpr().setName(it) }
+
+        val targetAssign = getTargetOfAssign(litExpr)
+        val res = varNames.filter { it != targetAssign }
+                            .map { NameExpr().setName(it) }
         return res
     }
 }
