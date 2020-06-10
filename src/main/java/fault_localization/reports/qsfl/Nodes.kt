@@ -11,7 +11,7 @@ class Nodes {
     }
 
     constructor(nodesFile: File){
-        nodesFile.forEachLine { createNodeInfo(it) }
+        if(nodesFile.exists()) nodesFile.forEachLine { createNodeInfo(it) } else return
     }
 
     private fun createNodeInfo(jsonString: String) {

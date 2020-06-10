@@ -1,17 +1,13 @@
 package repair
 
 import AlternativeProgram
-import Alternatives
 import BuggyProgram
-import com.github.javaparser.ast.CompilationUnit
 import com.github.javaparser.ast.Node
 import com.github.javaparser.ast.expr.BinaryExpr
 import com.github.javaparser.ast.expr.Expression
 import com.github.javaparser.ast.expr.IntegerLiteralExpr
 import fault_localization.FaultLocalizationType
-import fault_localization.FaultLocalizationType.QSFL
 import fault_localization.reports.qsfl.Landmark
-import fault_localization.reports.qsfl.NodeInfo
 import repair.mutators.ConditionalOperatorInsertion
 import repair.mutators.IntConstantModification
 import repair.mutators.RelationalOperatorReplacement
@@ -27,56 +23,7 @@ class LandmarkRepair: RepairStrategy() {
                         .map { createMutants(program, it) }
                         .filter { it.any() }
                         .flatMap { modifyComponent(program, it) }
-
-//        return when(basedOn) {
-//            QSFL -> {
-//                val x = faultyLandmarks.asSequence()
-//                        .map { it.map { it.fullRelation to program.findNodes(it) } }
-//                        .flatMap{ it.map { apart(it) }.asSequence() }
-//                        .map { createMutants(program, it) }
-//                        .filter { it.isNotEmpty() }
-//                        .toList()
-//                null
-////                Alternatives(program,
-////                        faultyLandmarks.asSequence()
-////                                .map<List<Landmark>, List<Pair<String, List<Node>>>> { it.map { it.fullRelation to program.findNodes(it) } }
-////                                        .map { createMutants(program, it, it.second) }
-////                                        .flatMap { modifyComponent(program, it) }.toList())
-//            }
-//            else -> emptySequence()
-//        }
     }
-
-//    private fun modifyComponent(program: BuggyProgram, modifications: Sequence<Pair<Node, List<Node>>>): Sequence<AlternativeProgram> {
-//        return modifications.flatMap { buildAlternatives(program, it.first, it.second) }
-//    }
-//
-//    private fun buildAlternatives(buggyProgram: BuggyProgram, originalNode: Node, mutantNodes: List<Node>): Sequence<AlternativeProgram> {
-//        val alternatives = mutableListOf<AlternativeProgram>()
-//        val tree = buggyProgram.getOriginalTree()
-//        val nodeToReplace = findEqualNode(tree, originalNode) ?: return emptySequence()
-//        var temporaryNode = nodeToReplace
-//        for(mutant in mutantNodes){
-//            temporaryNode.replace(mutant)
-//            alternatives.add(AlternativeProgram(mutant, tree.clone()))
-//            temporaryNode = mutant
-//        }
-//
-//        return alternatives.asSequence()
-//    }
-//
-//    private fun findEqualNode(tree: CompilationUnit, nodeToFind: Node): Node? {
-//        val maybeNode = tree.findFirst(nodeToFind::class.java, { isSameNode(it, nodeToFind) })
-//        return if(maybeNode.isPresent) maybeNode.get() else null
-//    }
-
-//    private fun isSameNode(someNode: Node, nodeToFind: Node): Boolean {
-//        if(someNode == nodeToFind){
-//            val someNodeRange = someNode.range.orElse(null) ?: return false
-//            val nodeToFindRange = nodeToFind.range.orElse(null) ?: return false
-//            return someNodeRange == nodeToFindRange
-//        } else return false
-//    }
 
     private fun createMutants(program: BuggyProgram, relAndNodes: Sequence<Pair<String, Node>>): Sequence<Pair<Node, List<Node>>> {
         return relAndNodes.map { (rel, node) -> node to mutate(program, rel, node) }

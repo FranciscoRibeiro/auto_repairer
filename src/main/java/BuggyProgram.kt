@@ -3,6 +3,7 @@ import com.github.javaparser.ast.CompilationUnit
 import com.github.javaparser.ast.Node
 import com.github.javaparser.ast.body.CallableDeclaration
 import com.github.javaparser.ast.expr.NameExpr
+import com.github.javaparser.printer.lexicalpreservation.LexicalPreservingPrinter.setup
 import com.github.javaparser.symbolsolver.JavaSymbolSolver
 import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSolver
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver
@@ -16,14 +17,12 @@ import java.io.File
 class BuggyProgram(val path: String, val sourceFile: File) {
     val sflReport = SFLReport(File(path, "site/gzoltar/sfl"))
     val qsflReport = QSFLReport(File(path, "qsfl"))
-    //val programTree = ProgramTree(StaticJavaParser.parse(sourceFile))
     val tree = parseAndSolve()
-    //private val originalTree = ImmutableTree(programTree.tree.clone())
     private val originalTree = ImmutableTree(tree.clone())
 
     private fun parseAndSolve(): CompilationUnit {
         StaticJavaParser.getConfiguration().setSymbolResolver(JavaSymbolSolver(CombinedTypeSolver(ReflectionTypeSolver())))
-        return StaticJavaParser.parse(sourceFile)
+        return setup(StaticJavaParser.parse(sourceFile))
     }
 
     fun mostLikelyFaulty(basedOn: FaultLocalizationType, upTo: Int = 1): Sequence<Sequence<Int>> {
@@ -32,10 +31,6 @@ class BuggyProgram(val path: String, val sourceFile: File) {
             QSFL -> qsflReport.mostLikelyFaulty(upTo)
         }
     }
-
-    /*fun nodesInLine(line: Int): List<Node> {
-        return programTree.nodesInLine(line)
-    }*/
 
     fun nodesInLine(line: Int): Sequence<Node> {
         return tree.findAll(Node::class.java, { isSameLine(it, line) }).asSequence()
@@ -67,13 +62,6 @@ class BuggyProgram(val path: String, val sourceFile: File) {
                     val paramNameExpr = NameExpr(paramNode.name)
                     associated = decl.get()
                             .findAll(Node::class.java, { containsVar(it, paramNameExpr) })
-//                            .findAll(NameExpr::class.java, { it.name.asString() == paramNode.name }).asSequence()
-//                            .map { getLine(it) }
-//                            .filter { it != 0 }
-//                            .distinct() //variable may be used more than once in the same line
-//                            .flatMap { nodesInLine(it).asSequence() }
-//                            .filter { containsParam(it, NameExpr(paramNode.name)) }
-//                            .toList()
                 }
             }
         }

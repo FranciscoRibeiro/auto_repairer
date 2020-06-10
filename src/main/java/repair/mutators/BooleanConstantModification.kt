@@ -9,6 +9,6 @@ class BooleanConstantModification: MutatorRepair<BooleanLiteralExpr>() {
 
     override fun checkedRepair(program: BuggyProgram, boolLitExpr: BooleanLiteralExpr): List<BooleanLiteralExpr> {
         val value = boolLitExpr.value
-        return listOf(boolLitExpr.clone().setValue(!value))
+        return listOf(BooleanLiteralExpr(!value))
     }
 }

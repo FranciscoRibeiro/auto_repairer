@@ -1,6 +1,5 @@
 package fault_localization.reports.qsfl
 
-import fault_localization.reports.ComponentInfo
 import org.json.JSONObject
 import java.io.File
 
@@ -12,7 +11,7 @@ class QSFLDiagnosis {
     }
 
     constructor(diagnosisFile: File){
-        this.faultyNodes = diagnosisFile.useLines { parseLines(it) }
+        this.faultyNodes = if(diagnosisFile.exists()) diagnosisFile.useLines { parseLines(it) } else emptyList()
     }
 
     private fun parseLines(lines: Sequence<String>): List<Map<Int, Double>> {
@@ -29,22 +28,8 @@ class QSFLDiagnosis {
     }
 
     fun mostLikelyFaulty(upTo: Int): Sequence<Sequence<Int>> {
-        //return faultyNodes.keys.first()
-//        val highestProb = faultyNodes.values.first()
-//        return faultyNodes.keys.takeWhile { key -> faultyNodes[key] == highestProb}
-
         return this.faultyNodes.asSequence()
                                 .take(upTo)
                                 .map { it.asSequence().map { it.key } }
-
-//        var counter = 0
-//        var currentProb = faultyNodes.values.first()
-//        return faultyNodes.keys.takeWhile { key ->
-//            if(faultyNodes[key] != currentProb) {
-//                currentProb = faultyNodes[key]!!
-//                counter++
-//            }
-//            counter != upTo
-//        }
     }
 }

@@ -13,9 +13,9 @@ class RelationalOperatorReplacement(val op: BinaryExpr.Operator? = null): Mutato
             if(op == null){
                 BinaryExpr.Operator.values()
                         .filter { it != binExpr.operator && isRelational(it) }
-                        .map { binExpr.clone().setOperator(it) }
+                        .map { BinaryExpr(binExpr.left.clone(), binExpr.right.clone(), it) }
             } else {
-                listOf(binExpr.clone().setOperator(op))
+                listOf(BinaryExpr(binExpr.left.clone(), binExpr.right.clone(), op))
             }
         } else { emptyList() }
     }

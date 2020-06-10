@@ -44,7 +44,7 @@ class VarToVarReplacement: MutatorRepair<NameExpr>() {
             )
         }
 
-        val res = varNames.map { nameExpr.clone().setName(it) }
+        val res = varNames.map { NameExpr(it) }
         return res
     }
 

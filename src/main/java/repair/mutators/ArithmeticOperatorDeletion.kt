@@ -11,7 +11,7 @@ class ArithmeticOperatorDeletion: MutatorRepair<BinaryExpr>() {
 
     override fun checkedRepair(program: BuggyProgram, binExpr: BinaryExpr): List<Expression> {
         return if(isArithmetic(binExpr.operator)){
-            listOf(binExpr.clone().left, binExpr.clone().right)
+            listOf(binExpr.left.clone(), binExpr.right.clone())
         } else { emptyList() }
     }
 }

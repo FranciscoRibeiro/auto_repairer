@@ -12,9 +12,9 @@ class IntConstantModification(val newValue: Int? = null): MutatorRepair<IntegerL
             val value = intLitExpr.asInt()
             val valueSet = mutableSetOf(1, 0, -1, -value, value + 1, value - 1)
             valueSet.remove(value)
-            return valueSet.map { intLitExpr.clone().setInt(it) }
+            return valueSet.map { IntegerLiteralExpr(it) }
         } else {
-            return listOf(intLitExpr.clone().setInt(newValue))
+            return listOf(IntegerLiteralExpr(newValue))
         }
     }
 }

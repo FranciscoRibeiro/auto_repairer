@@ -14,7 +14,7 @@ class StatementDeletion: MutatorRepair<ExpressionStmt>() {
     override val rank: Int
         get() = 6
 
-    override fun checkedRepair(program: BuggyProgram, exprStmt: ExpressionStmt): List<BlockStmt> {
-        return listOf(BlockStmt().setComment(LineComment(exprStmt.toString())) as BlockStmt)
+    override fun checkedRepair(program: BuggyProgram, exprStmt: ExpressionStmt): List<ExpressionStmt> {
+        return listOf(ExpressionStmt())
     }
 }

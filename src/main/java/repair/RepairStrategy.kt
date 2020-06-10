@@ -7,17 +7,24 @@ import com.github.javaparser.ast.CompilationUnit
 import com.github.javaparser.ast.Node
 import com.github.javaparser.ast.expr.*
 import com.github.javaparser.ast.stmt.ExpressionStmt
+import com.github.javaparser.ast.stmt.ReturnStmt
+import com.github.javaparser.printer.lexicalpreservation.LexicalPreservingPrinter
+import com.github.javaparser.printer.lexicalpreservation.LexicalPreservingPrinter.print
+import com.github.javaparser.printer.lexicalpreservation.LexicalPreservingPrinter.setup
 import fault_localization.FaultLocalizationType
 import repair.mutators.*
+import java.io.File
 
 abstract class RepairStrategy {
     val mutators = mapOf<Class<out Node>, List<MutatorRepair<*>>>(
-            /*BinaryExpr::class.java to listOf(RelationalOperatorReplacement(), ArithmeticOperatorDeletion()),
+            BinaryExpr::class.java to listOf(RelationalOperatorReplacement(), ArithmeticOperatorDeletion()),
             BooleanLiteralExpr::class.java to listOf(BooleanConstantModification()),
             IntegerLiteralExpr::class.java to listOf(IntConstantModification(), ConsToVarReplacement()),
-            DoubleLiteralExpr::class.java to listOf(DoubleConstantModification()),*/
-            NameExpr::class.java to listOf(/*VarToVarReplacement(),*/ VarToConsReplacement())/*,*/
-            /*ExpressionStmt::class.java to listOf(StatementDeletion())*/
+            DoubleLiteralExpr::class.java to listOf(DoubleConstantModification()),
+            NameExpr::class.java to listOf(VarToVarReplacement(), VarToConsReplacement()),
+            ExpressionStmt::class.java to listOf(StatementDeletion()),
+            ReturnStmt::class.java to listOf(ReturnValue()),
+            UnaryExpr::class.java to listOf(UnaryOperatorDeletion())
     )
 
     abstract fun repair(program: BuggyProgram, basedOn: FaultLocalizationType): Sequence<AlternativeProgram>
@@ -28,13 +35,13 @@ abstract class RepairStrategy {
 
     private fun buildAlternatives(buggyProgram: BuggyProgram, originalNode: Node, mutantNodes: List<Node>): Sequence<AlternativeProgram> {
         val alternatives = mutableListOf<AlternativeProgram>()
-        val tree = buggyProgram.getOriginalTree()
-        val nodeToReplace = findEqualNode(tree, originalNode) ?: return emptySequence()
-        var temporaryNode = nodeToReplace
+
         for(mutant in mutantNodes){
-            temporaryNode.replace(mutant)
-            alternatives.add(AlternativeProgram(mutant, tree.clone()))
-            temporaryNode = mutant
+            val tree = setup(buggyProgram.getOriginalTree())
+            val nodeToReplace = findEqualNode(tree, originalNode) ?: return emptySequence()
+            val b = nodeToReplace.replace(mutant)
+            if(b == false) println("Ups")
+            alternatives.add(AlternativeProgram(mutant, tree))
         }
 
         return alternatives.asSequence()

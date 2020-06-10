@@ -10,6 +10,6 @@ class DoubleConstantModification: MutatorRepair<DoubleLiteralExpr>() {
     override fun checkedRepair(program: BuggyProgram, doubleLitExpr: DoubleLiteralExpr): List<DoubleLiteralExpr> {
         val value = doubleLitExpr.asDouble()
         val newValue = if(value == 1.0) 0.0 else 1.0
-        return listOf(doubleLitExpr.clone().setDouble(newValue))
+        return listOf(DoubleLiteralExpr(newValue))
     }
 }

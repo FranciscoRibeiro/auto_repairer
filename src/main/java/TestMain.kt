@@ -1,3 +1,9 @@
+import com.github.javaparser.JavaParser
+import com.github.javaparser.StaticJavaParser
+import com.github.javaparser.ast.expr.MethodCallExpr
+import com.github.javaparser.ast.expr.NameExpr
+import com.github.javaparser.ast.expr.SimpleName
+import com.github.javaparser.ast.stmt.ReturnStmt
 import fault_localization.FaultLocalizationType.SFL
 import fault_localization.FaultLocalizationType.QSFL
 import repair.BruteForceRepair
@@ -50,11 +56,17 @@ fun main(args: Array<String>) {
     val fileName = "ByteArrayHashMap"*/
     /*val mutantIdentifier = "1007/19/00000009"
     val fileName = "HSLColor"*/
-    val mutantIdentifier = "1007/19/00000013"
-    val fileName = "HSLColor"
-    val mutantFile = File("${args[0]}/generated_mutants_2016/$mutantIdentifier/$fileName.java")
+    /*val mutantIdentifier = "1007/19/00000013"
+    val fileName = "HSLColor"*/
+    /*val mutantIdentifier = "1004/22/00000004"
+    val fileName = "FontInfo"*/
+    /*val mutantIdentifier = "rv_null"
+    val fileName = "TestFile"*/
+    val mutantIdentifier = "1011/29/00000019"
+    val fileName = "IntHashMap"
+    val mutantFile = File("${args[0]}/${args[1]}/$mutantIdentifier/$fileName.java")
 
-//    setupFix("${args[0]}/$fileName", fileName, null)
+//    val cu = StaticJavaParser.parse(File("src/main/java/TestFile.java"))
 
     /* parse program */
     val buggyProgram = BuggyProgram(
@@ -64,17 +76,15 @@ fun main(args: Array<String>) {
     /* lazy creation of potential fixes based on landmarks */
     val lRepairer = LandmarkRepair()
     val landmarkAlternatives = lRepairer.repair(buggyProgram, QSFL)
-//    val y = landmarkAlternatives.toList()
 
     /* lazy creation of potential fixes based on the mut ops ranking */
     val bfRepairer = BruteForceRepair()
     val bruteForceAlternatives = bfRepairer.repair(buggyProgram, SFL)
-//    val x = bruteForceAlternatives.toList()
+
     /* stop when a mutant fixes the program */
-    (landmarkAlternatives + bruteForceAlternatives)
-            .forEach { println("yo"); File("tmp/${System.currentTimeMillis()}.java").writeText(it.toString()) }
+    var counter = 0
+    val x = (landmarkAlternatives + bruteForceAlternatives).toList()
+            x.forEach { File("tmp/${++counter}.java").writeText(it.toString()) }
 //            .map { setupFix("${args[0]}/$fileName", fileName, it) }
 //            .find { passTests("${args[0]}/$fileName") }
-
-    println("end")
 }
