@@ -45,10 +45,6 @@ fun isTypeReference(type: ResolvedType): Boolean {
     return type is ResolvedReferenceType
 }
 
-fun isTypeReference(type: Type): Boolean {
-    return type.isReferenceType
-}
-
 fun isNumeric(litExpr: LiteralExpr): Boolean {
     return litExpr.isIntegerLiteralExpr || litExpr.isLongLiteralExpr || litExpr.isDoubleLiteralExpr
 }
