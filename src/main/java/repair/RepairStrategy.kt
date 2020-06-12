@@ -5,6 +5,7 @@ import Alternatives
 import BuggyProgram
 import com.github.javaparser.ast.CompilationUnit
 import com.github.javaparser.ast.Node
+import com.github.javaparser.ast.comments.LineComment
 import com.github.javaparser.ast.expr.*
 import com.github.javaparser.ast.stmt.ExpressionStmt
 import com.github.javaparser.ast.stmt.ReturnStmt
@@ -17,7 +18,8 @@ import java.io.File
 
 abstract class RepairStrategy {
     val mutators = mapOf<Class<out Node>, List<MutatorRepair<*>>>(
-            BinaryExpr::class.java to listOf(RelationalOperatorReplacement(), ArithmeticOperatorDeletion(), ConditionalOperatorReplacement()),
+            BinaryExpr::class.java to listOf(RelationalOperatorReplacement(), ArithmeticOperatorDeletion(),
+                    ConditionalOperatorReplacement(), ArithmeticOperatorReplacement()),
             BooleanLiteralExpr::class.java to listOf(BooleanConstantModification()),
             IntegerLiteralExpr::class.java to listOf(IntConstantModification(), ConsToVarReplacement()),
             DoubleLiteralExpr::class.java to listOf(DoubleConstantModification()),
@@ -39,8 +41,11 @@ abstract class RepairStrategy {
         for(mutant in mutantNodes){
             val tree = setup(buggyProgram.getOriginalTree())
             val nodeToReplace = findEqualNode(tree, originalNode) ?: return emptySequence()
-            val b = nodeToReplace.replace(mutant)
-            if(b == false) println("Ups")
+            try {
+                nodeToReplace.replace(mutant)
+            } catch (e: UnsupportedOperationException){
+                println("UnsupportedOperationException: Failed to replace \"$nodeToReplace\" with \"$mutant\"")
+            }
             alternatives.add(AlternativeProgram(mutant, tree))
         }
 
