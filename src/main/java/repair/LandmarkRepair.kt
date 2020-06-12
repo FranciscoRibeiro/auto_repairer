@@ -88,6 +88,7 @@ class LandmarkRepair: RepairStrategy() {
     private fun relAndPivot(relation: String): Pair<String, String> {
         if(relation == "IsNull") return Pair("eq", "null")
         else if(relation == "NotNull") return Pair("ne", "null")
+        else if(relation == "false" || relation == "true") return Pair("eq", relation)
         else {
             val tokens = relation.split(" ")
             return Pair(tokens[0], tokens[1])
