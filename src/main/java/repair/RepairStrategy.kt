@@ -18,8 +18,9 @@ import java.io.File
 
 abstract class RepairStrategy {
     val mutators = mapOf<Class<out Node>, List<MutatorRepair<*>>>(
-            BinaryExpr::class.java to listOf(RelationalOperatorReplacement(), ArithmeticOperatorDeletion(),
-                    ConditionalOperatorReplacement(), ArithmeticOperatorReplacement()),
+            BinaryExpr::class.java to listOf(RelationalOperatorReplacement(),
+                    ConditionalOperatorReplacement(), ConditionalOperatorDeletion(),
+                    ArithmeticOperatorReplacement(), ArithmeticOperatorDeletion()),
             BooleanLiteralExpr::class.java to listOf(BooleanConstantModification()),
             IntegerLiteralExpr::class.java to listOf(IntConstantModification(), ConsToVarReplacement()),
             DoubleLiteralExpr::class.java to listOf(DoubleConstantModification()),

@@ -64,12 +64,12 @@ fun main(args: Array<String>) {
     val fileName = "TestFile"*/
     /*val mutantIdentifier = "1011/29/00000019" //bug: UnaryOperatorInsertion
     val fileName = "IntHashMap"*/
-    /*val mutantIdentifier = "1017/10/00000027" //bug: ConditionalOperatorReplacement
-    val fileName = "VCardBean"*/
+    val mutantIdentifier = "1017/10/00000027" //bug: ConditionalOperatorReplacement
+    val fileName = "VCardBean"
     /*val mutantIdentifier = "1016/22/00000006" //bug: ArithmeticOperatorReplacement
     val fileName = "TimeStamp"*/
-    val mutantIdentifier = "1012/69/00000006" //bug: UnaryOperatorReplacement
-    val fileName = "ParameterParser"
+    /*val mutantIdentifier = "1012/69/00000006" //bug: UnaryOperatorReplacement
+    val fileName = "ParameterParser"*/
     val mutantFile = File("${args[0]}/${args[1]}/$mutantIdentifier/$fileName.java")
 
 //    val cu = StaticJavaParser.parse(File("src/main/java/TestFile.java"))
