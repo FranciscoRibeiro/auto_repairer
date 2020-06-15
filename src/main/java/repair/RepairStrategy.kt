@@ -27,7 +27,8 @@ abstract class RepairStrategy {
             NameExpr::class.java to listOf(VarToVarReplacement(), VarToConsReplacement()),
             ExpressionStmt::class.java to listOf(StatementDeletion()),
             ReturnStmt::class.java to listOf(ReturnValue()),
-            UnaryExpr::class.java to listOf(UnaryOperatorDeletion(), UnaryOperatorReplacement())
+            UnaryExpr::class.java to listOf(UnaryOperatorDeletion(), UnaryOperatorReplacement()),
+            MethodCallExpr::class.java to listOf(NonVoidMethodDeletion())
     )
 
     abstract fun repair(program: BuggyProgram, basedOn: FaultLocalizationType): Sequence<AlternativeProgram>
