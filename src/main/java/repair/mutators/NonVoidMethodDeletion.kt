@@ -34,19 +34,6 @@ class NonVoidMethodDeletion: MutatorRepair<MethodCallExpr>() {
                     else -> emptyList()
                 }
             } else listOf(target.clone())
-
-            /*if(target != null){
-                return listOf(target.clone())
-            } else {
-                val parent = metCall.parentNode.orElse(null)
-                if(parent != null){
-                    when(parent){
-                        is MethodCallExpr -> MethodCallExpr(parent.scope.get().clone(),
-                                                            parent.name,
-                                                            NodeList(parent.arguments.filter { it != metCall }))
-                    }
-                }
-            }*/
         } else emptyList()
     }
 }
