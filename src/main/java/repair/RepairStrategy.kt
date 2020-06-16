@@ -5,6 +5,7 @@ import Alternatives
 import BuggyProgram
 import com.github.javaparser.ast.CompilationUnit
 import com.github.javaparser.ast.Node
+import com.github.javaparser.ast.body.FieldDeclaration
 import com.github.javaparser.ast.comments.LineComment
 import com.github.javaparser.ast.expr.*
 import com.github.javaparser.ast.stmt.ExpressionStmt
@@ -29,7 +30,8 @@ abstract class RepairStrategy {
             ExpressionStmt::class.java to listOf(StatementDeletion()),
             ReturnStmt::class.java to listOf(ReturnValue()),
             UnaryExpr::class.java to listOf(UnaryOperatorDeletion(), UnaryOperatorReplacement()),
-            MethodCallExpr::class.java to listOf(NonVoidMethodDeletion(), VoidMethodDeletion())
+            MethodCallExpr::class.java to listOf(NonVoidMethodDeletion(), VoidMethodDeletion()),
+            FieldDeclaration::class.java to listOf(MemberVariableAssignmentDeletion())
     )
 
     abstract fun repair(program: BuggyProgram, basedOn: FaultLocalizationType): Sequence<AlternativeProgram>
