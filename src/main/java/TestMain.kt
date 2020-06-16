@@ -70,7 +70,7 @@ fun main(args: Array<String>) {
     val fileName = "TimeStamp"*/
     /*val mutantIdentifier = "1012/69/00000006" //bug: UnaryOperatorReplacement
     val fileName = "ParameterParser"*/
-    val mutantIdentifier = "nvmd_keep_instance"
+    val mutantIdentifier = "vmd_keep_instance"
     val fileName = "TestFile"
     val mutantFile = File("${args[0]}/${args[1]}/$mutantIdentifier/$fileName.java")
 
