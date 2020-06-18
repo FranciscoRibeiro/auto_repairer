@@ -1,22 +1,17 @@
 package repair
 
 import AlternativeProgram
-import Alternatives
 import BuggyProgram
 import com.github.javaparser.ast.CompilationUnit
+import com.github.javaparser.ast.Modifier
 import com.github.javaparser.ast.Node
 import com.github.javaparser.ast.body.FieldDeclaration
-import com.github.javaparser.ast.comments.LineComment
 import com.github.javaparser.ast.expr.*
 import com.github.javaparser.ast.stmt.ExpressionStmt
-import com.github.javaparser.ast.stmt.IfStmt
 import com.github.javaparser.ast.stmt.ReturnStmt
-import com.github.javaparser.printer.lexicalpreservation.LexicalPreservingPrinter
-import com.github.javaparser.printer.lexicalpreservation.LexicalPreservingPrinter.print
 import com.github.javaparser.printer.lexicalpreservation.LexicalPreservingPrinter.setup
 import fault_localization.FaultLocalizationType
 import repair.mutators.*
-import java.io.File
 
 abstract class RepairStrategy {
     val mutators = mapOf<Class<out Node>, List<MutatorRepair<*>>>(
@@ -32,7 +27,8 @@ abstract class RepairStrategy {
             ReturnStmt::class.java to listOf(ReturnValue()),
             UnaryExpr::class.java to listOf(UnaryOperatorDeletion(), UnaryOperatorReplacement()),
             MethodCallExpr::class.java to listOf(NonVoidMethodDeletion(), VoidMethodDeletion()),
-            FieldDeclaration::class.java to listOf(MemberVariableAssignmentDeletion())
+            FieldDeclaration::class.java to listOf(MemberVariableAssignmentDeletion()),
+            Modifier::class.java to listOf(AccessorModifierChange())
     )
 
     abstract fun repair(program: BuggyProgram, basedOn: FaultLocalizationType): Sequence<AlternativeProgram>
