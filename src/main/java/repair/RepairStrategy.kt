@@ -9,6 +9,7 @@ import com.github.javaparser.ast.body.FieldDeclaration
 import com.github.javaparser.ast.comments.LineComment
 import com.github.javaparser.ast.expr.*
 import com.github.javaparser.ast.stmt.ExpressionStmt
+import com.github.javaparser.ast.stmt.IfStmt
 import com.github.javaparser.ast.stmt.ReturnStmt
 import com.github.javaparser.printer.lexicalpreservation.LexicalPreservingPrinter
 import com.github.javaparser.printer.lexicalpreservation.LexicalPreservingPrinter.print
@@ -22,7 +23,7 @@ abstract class RepairStrategy {
             BinaryExpr::class.java to listOf(RelationalOperatorReplacement(),
                     ConditionalOperatorReplacement(), ConditionalOperatorDeletion(),
                     ArithmeticOperatorReplacement(), ArithmeticOperatorDeletion(),
-                    UnaryOperatorInsertion()),
+                    UnaryOperatorInsertion(), RemoveConditional()),
             BooleanLiteralExpr::class.java to listOf(BooleanConstantModification()),
             IntegerLiteralExpr::class.java to listOf(IntConstantModification(), ConsToVarReplacement()),
             DoubleLiteralExpr::class.java to listOf(DoubleConstantModification()),
