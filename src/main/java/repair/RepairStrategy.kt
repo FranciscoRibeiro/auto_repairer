@@ -28,7 +28,8 @@ abstract class RepairStrategy {
             UnaryExpr::class.java to listOf(UnaryOperatorDeletion(), UnaryOperatorReplacement()),
             MethodCallExpr::class.java to listOf(NonVoidMethodDeletion(), VoidMethodDeletion()),
             FieldDeclaration::class.java to listOf(MemberVariableAssignmentDeletion()),
-            Modifier::class.java to listOf(AccessorModifierChange())
+            Modifier::class.java to listOf(AccessorModifierChange()),
+            ObjectCreationExpr::class.java to listOf(ConstructorCallReplacementNull())
     )
 
     abstract fun repair(program: BuggyProgram, basedOn: FaultLocalizationType): Sequence<AlternativeProgram>
