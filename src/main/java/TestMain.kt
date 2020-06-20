@@ -70,10 +70,10 @@ fun main(args: Array<String>) {
     val fileName = "TimeStamp"*/
     /*val mutantIdentifier = "1012/69/00000006" //bug: UnaryOperatorReplacement
     val fileName = "ParameterParser"*/
-    val mutantIdentifier = "1017/10/00000067" //bug: AccessorMethodChange
-    val fileName = "VCardBean"
-    /*val mutantIdentifier = "ccrn"
-    val fileName = "TestFile"*/
+    /*val mutantIdentifier = "1017/10/00000067" //bug: AccessorMethodChange
+    val fileName = "VCardBean"*/
+    val mutantIdentifier = "smc"
+    val fileName = "TestFile"
     val mutantFile = File("${args[0]}/${args[1]}/$mutantIdentifier/$fileName.java")
 
 //    val cu = StaticJavaParser.parse(File("src/main/java/TestFile.java"))

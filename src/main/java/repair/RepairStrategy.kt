@@ -15,7 +15,7 @@ import repair.mutators.*
 
 abstract class RepairStrategy {
     val mutators = mapOf<Class<out Node>, List<MutatorRepair<*>>>(
-            /*BinaryExpr::class.java to listOf(RelationalOperatorReplacement(),
+            BinaryExpr::class.java to listOf(RelationalOperatorReplacement(),
                     ConditionalOperatorReplacement(), ConditionalOperatorDeletion(),
                     ArithmeticOperatorReplacement(), ArithmeticOperatorDeletion(),
                     UnaryOperatorInsertion(), RemoveConditional()),
@@ -25,11 +25,11 @@ abstract class RepairStrategy {
             NameExpr::class.java to listOf(VarToVarReplacement(), VarToConsReplacement(), UnaryOperatorInsertion()),
             ExpressionStmt::class.java to listOf(StatementDeletion()),
             ReturnStmt::class.java to listOf(ReturnValue()),
-            UnaryExpr::class.java to listOf(UnaryOperatorDeletion(), UnaryOperatorReplacement()),*/
-            MethodCallExpr::class.java to listOf(/*NonVoidMethodDeletion(), VoidMethodDeletion(),*/ AccessorMethodChange())/*,
-            FieldDeclaration::class.java to listOf(MemberVariableAssignmentDeletion()),
+            UnaryExpr::class.java to listOf(UnaryOperatorDeletion(), UnaryOperatorReplacement()),
+            MethodCallExpr::class.java to listOf(NonVoidMethodDeletion(), VoidMethodDeletion(), AccessorMethodChange()),
+            FieldDeclaration::class.java to listOf(MemberVariableAssignmentDeletion(), StaticModifierChange()),
             Modifier::class.java to listOf(AccessorModifierChange()),
-            ObjectCreationExpr::class.java to listOf(ConstructorCallReplacementNull())*/
+            ObjectCreationExpr::class.java to listOf(ConstructorCallReplacementNull())
     )
 
     abstract fun repair(program: BuggyProgram, basedOn: FaultLocalizationType): Sequence<AlternativeProgram>
