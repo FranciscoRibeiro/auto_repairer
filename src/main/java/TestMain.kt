@@ -72,7 +72,9 @@ fun main(args: Array<String>) {
     val fileName = "ParameterParser"*/
     /*val mutantIdentifier = "1017/10/00000067" //bug: AccessorMethodChange
     val fileName = "VCardBean"*/
-    val mutantIdentifier = "smc"
+    /*val mutantIdentifier = "1006/22/00000003"
+    val fileName = "HierarchyPropertyParser"*/
+    val mutantIdentifier = "rrc"
     val fileName = "TestFile"
     val mutantFile = File("${args[0]}/${args[1]}/$mutantIdentifier/$fileName.java")
 

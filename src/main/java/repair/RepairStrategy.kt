@@ -22,14 +22,16 @@ abstract class RepairStrategy {
             BooleanLiteralExpr::class.java to listOf(BooleanConstantModification()),
             IntegerLiteralExpr::class.java to listOf(IntConstantModification(), ConsToVarReplacement()),
             DoubleLiteralExpr::class.java to listOf(DoubleConstantModification()),
-            NameExpr::class.java to listOf(VarToVarReplacement(), VarToConsReplacement(), UnaryOperatorInsertion()),
+            NameExpr::class.java to listOf(VarToVarReplacement(), VarToConsReplacement(),
+                    UnaryOperatorInsertion(), ReferenceReplacementContent()),
             ExpressionStmt::class.java to listOf(StatementDeletion()),
             ReturnStmt::class.java to listOf(ReturnValue()),
             UnaryExpr::class.java to listOf(UnaryOperatorDeletion(), UnaryOperatorReplacement()),
             MethodCallExpr::class.java to listOf(NonVoidMethodDeletion(), VoidMethodDeletion(), AccessorMethodChange()),
             FieldDeclaration::class.java to listOf(MemberVariableAssignmentDeletion(), StaticModifierChange()),
             Modifier::class.java to listOf(AccessorModifierChange()),
-            ObjectCreationExpr::class.java to listOf(ConstructorCallReplacementNull())
+            ObjectCreationExpr::class.java to listOf(ConstructorCallReplacementNull()),
+            FieldAccessExpr::class.java to listOf(ReferenceReplacementContent())
     )
 
     abstract fun repair(program: BuggyProgram, basedOn: FaultLocalizationType): Sequence<AlternativeProgram>
