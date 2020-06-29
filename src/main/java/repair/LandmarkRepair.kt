@@ -36,7 +36,7 @@ class LandmarkRepair: RepairStrategy() {
             is BinaryExpr -> {
                 val rn = node.right
                 return if(rn is IntegerLiteralExpr && rn.asInt() != pivot.toInt()) {
-                    IntConstantModification(pivot.toInt()).repair(program, rn).map { node.clone().setRight(it as Expression) }
+                    IntConstantModification(pivot.toInt()).repair(program, rn).map { BinaryExpr(node.left.clone(), (it as Expression), node.operator) }
                 }
                 else if(isRelational(node.operator)) {
                     val relOp = toRelOp(rel) ?: return emptyList()

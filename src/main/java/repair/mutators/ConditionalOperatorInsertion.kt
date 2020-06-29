@@ -10,7 +10,7 @@ class ConditionalOperatorInsertion(val op: BinaryExpr.Operator, val exprToAdd: B
 
     override fun checkedRepair(program: BuggyProgram, binExpr: BinaryExpr): List<BinaryExpr> {
         return if (isConditional(op)){
-            listOf(BinaryExpr(binExpr, exprToAdd, op))
+            listOf(BinaryExpr(binExpr.clone(), exprToAdd.clone(), op))
         } else emptyList()
     }
 }
