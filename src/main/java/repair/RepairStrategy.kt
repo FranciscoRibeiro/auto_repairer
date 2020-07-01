@@ -12,6 +12,7 @@ import com.github.javaparser.ast.stmt.ReturnStmt
 import com.github.javaparser.printer.lexicalpreservation.LexicalPreservingPrinter.setup
 import fault_localization.FaultLocalizationType
 import repair.mutators.*
+import java.lang.IllegalArgumentException
 
 abstract class RepairStrategy {
     val mutators = mapOf<Class<out Node>, List<MutatorRepair<*>>>(
@@ -50,6 +51,8 @@ abstract class RepairStrategy {
                 nodeToReplace.replace(mutant)
             } catch (e: UnsupportedOperationException){
                 println("UnsupportedOperationException: Failed to replace \"$nodeToReplace\" with \"$mutant\"")
+            } catch (e: IllegalArgumentException){
+                println("IllegalArgumentException: Failed to replace \"$nodeToReplace\" with \"$mutant\"")
             }
             alternatives.add(AlternativeProgram(mutant, tree))
         }
