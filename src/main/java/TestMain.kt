@@ -1,6 +1,7 @@
 import fault_localization.FaultLocalizationType.SFL
 import fault_localization.FaultLocalizationType.QSFL
-import repair.BruteForceRepair
+import repair.BruteForceAdHocRepair
+import repair.BruteForceRankingRepair
 import repair.LandmarkRepair
 import java.io.File
 import kotlin.system.exitProcess
@@ -76,9 +77,14 @@ fun main(args: Array<String>) {
     val fileName = args[3]
     val strategy = args.getOrElse(4, { "-a" })
     val strategyDir = when(strategy){
+        "-a" -> "all"
         "-l" -> "landmark"
-        "-b" -> "brute_force"
-        else -> "all"
+        "-br" -> "brute_force_ranking"
+        "-ba" -> "brute_force_adhoc"
+        else -> {
+            println("invalid option - executing as \"-a\"")
+            "all"
+        }
     }
     val mutantFile = File("${args[0]}/${args[1]}/$mutantIdentifier/$fileName.java")
 
@@ -96,17 +102,18 @@ fun main(args: Array<String>) {
 
     /* lazy creation of potential fixes based on the mut ops ranking */
     val bruteForceAlternatives =
-            if(strategy == "-b" || strategy == "-a") BruteForceRepair().repair(buggyProgram, SFL)
+            if(strategy == "-br" || strategy == "-a") BruteForceRankingRepair().repair(buggyProgram, SFL)
+            else if(strategy == "-ba") BruteForceAdHocRepair().repair(buggyProgram, SFL)
             else emptySequence()
 
     /* stop when a mutant fixes the program */
     var counter = 0
-    val x = (landmarkAlternatives + bruteForceAlternatives)/*.toList()*/
+    val x = (landmarkAlternatives + bruteForceAlternatives).toList()
 //    File("tmp/${++counter}.java").writeText(x[0].toString())
-//            x.forEach { File("tmp/${++counter}.java").writeText(it.toString()) }
-            .map { setupFix("${args[0]}/$fileName", fileName, it) }
-            .map { saveFix("${args[0]}/$fileName/patches/$strategyDir/${mutantIdentifier.replace("/","_")}", ++counter, it) }
-            .find { passTests("${args[0]}/$fileName") }
+            x.forEach { File("tmp_br/${++counter}.java").writeText(it.toString()) }
+//            .map { setupFix("${args[0]}/$fileName", fileName, it) }
+//            .map { saveFix("${args[0]}/$fileName/patches/$strategyDir/${mutantIdentifier.replace("/","_")}", ++counter, it) }
+//            .find { passTests("${args[0]}/$fileName") }
 
     if(x == null) exitProcess(1)
 }

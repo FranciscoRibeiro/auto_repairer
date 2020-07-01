@@ -6,7 +6,7 @@ import com.github.javaparser.ast.Node
 import fault_localization.FaultLocalizationType
 import repair.mutators.MutatorRepair
 
-class BruteForceRepair: RepairStrategy() {
+class BruteForceRankingRepair: RepairStrategy() {
     override fun repair(program: BuggyProgram, basedOn: FaultLocalizationType): Sequence<AlternativeProgram> {
         val alts = program.mostLikelyFaulty(basedOn, 3)
                         .map { it.map { it to program.nodesInLine(it) } }
