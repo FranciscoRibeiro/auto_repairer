@@ -3,6 +3,7 @@ import fault_localization.FaultLocalizationType.QSFL
 import repair.BruteForceRepair
 import repair.LandmarkRepair
 import java.io.File
+import kotlin.system.exitProcess
 
 fun runCmd(cmd: String,
            dir: String = System.getProperty("user.dir"),
@@ -73,6 +74,12 @@ fun main(args: Array<String>) {
     val fileName = "TestFile"*/
     val mutantIdentifier = args[2]
     val fileName = args[3]
+    val strategy = args.getOrElse(4, { "-a" })
+    val strategyDir = when(strategy){
+        "-l" -> "landmark"
+        "-b" -> "brute_force"
+        else -> "all"
+    }
     val mutantFile = File("${args[0]}/${args[1]}/$mutantIdentifier/$fileName.java")
 
 //    val cu = StaticJavaParser.parse(File("src/main/java/TestFile.java"))
@@ -83,21 +90,25 @@ fun main(args: Array<String>) {
             mutantFile)
 
     /* lazy creation of potential fixes based on landmarks */
-    val lRepairer = LandmarkRepair()
-    val landmarkAlternatives = lRepairer.repair(buggyProgram, QSFL)
+    val landmarkAlternatives =
+            if(strategy == "-l" || strategy == "-a") LandmarkRepair().repair(buggyProgram, QSFL)
+            else emptySequence()
 
     /* lazy creation of potential fixes based on the mut ops ranking */
-    val bfRepairer = BruteForceRepair()
-    val bruteForceAlternatives = bfRepairer.repair(buggyProgram, SFL)
+    val bruteForceAlternatives =
+            if(strategy == "-b" || strategy == "-a") BruteForceRepair().repair(buggyProgram, SFL)
+            else emptySequence()
 
     /* stop when a mutant fixes the program */
     var counter = 0
-    val x = (landmarkAlternatives + bruteForceAlternatives).toList()
+    val x = (landmarkAlternatives + bruteForceAlternatives)/*.toList()*/
 //    File("tmp/${++counter}.java").writeText(x[0].toString())
-            x.forEach { File("tmp/${++counter}.java").writeText(it.toString()) }
-//            .map { setupFix("${args[0]}/$fileName", fileName, it) }
-//            .map { saveFix("${args[0]}/$fileName/patches/${mutantIdentifier.replace("/","_")}", ++counter, it) }
-//            .find { passTests("${args[0]}/$fileName") }
+//            x.forEach { File("tmp/${++counter}.java").writeText(it.toString()) }
+            .map { setupFix("${args[0]}/$fileName", fileName, it) }
+            .map { saveFix("${args[0]}/$fileName/patches/$strategyDir/${mutantIdentifier.replace("/","_")}", ++counter, it) }
+            .find { passTests("${args[0]}/$fileName") }
+
+    if(x == null) exitProcess(1)
 }
 
 fun saveFix(patchDir: String, n: Int, fix: AlternativeProgram) {
