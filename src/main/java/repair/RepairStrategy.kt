@@ -72,4 +72,9 @@ abstract class RepairStrategy {
             return someNodeRange == nodeToFindRange
         } else return false
     }
+
+    internal fun pairWithMutOp(node: Node): Sequence<Pair<Node, MutatorRepair<*>>> {
+        val mutOps = mutators[node.javaClass] ?: return emptySequence()
+        return mutOps.asSequence().map { node to it }
+    }
 }

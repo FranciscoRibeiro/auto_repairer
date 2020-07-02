@@ -36,10 +36,21 @@ class BuggyProgram(val path: String, val sourceFile: File) {
         return tree.findAll(Node::class.java, { isSameLine(it, line) }).asSequence()
     }
 
+    fun nodesBeginInLine(line: Int): Sequence<Node> {
+        return tree.findAll(Node::class.java, { isSameBeginLine(it, line) }).asSequence()
+    }
+
     private fun isSameLine(node: Node?, line: Int): Boolean {
         if(node != null && node.range.isPresent){
             val nodeRange = node.range.get()
             return nodeRange.begin.line == line && nodeRange.end.line == line
+        } else{ return false }
+    }
+
+    private fun isSameBeginLine(node: Node?, line: Int): Boolean {
+        if(node != null && node.range.isPresent){
+            val nodeRange = node.range.get()
+            return nodeRange.begin.line == line
         } else{ return false }
     }
 
@@ -66,6 +77,29 @@ class BuggyProgram(val path: String, val sourceFile: File) {
             }
         }
         return associated.asSequence()
+    }
+
+    fun findNodesIndirectly(landmark: Landmark): Sequence<Node> {
+        return findNodes(landmark).map { getLine(it) }
+                                .distinct().filter { it != 0 }
+                                .flatMap { nodesBeginInLine(it) }
+//        var associated: List<Node> = emptyList()
+//        val paramNode = qsflReport.nodeInfo(landmark.parentId)
+//        if(paramNode != null && paramNode is Parameter){
+//            val methodNode = qsflReport.nodeInfo(paramNode.parentId)
+//            if (methodNode != null && methodNode is Method){
+//                val decl = tree.findFirst(CallableDeclaration::class.java, { hasNameAndParams(it, methodNode) })
+//                if(decl.isPresent){
+//                    val paramNameExpr = NameExpr(paramNode.name)
+//                    associated = decl.get()
+//                            .findAll(NameExpr::class.java, { it.nameAsString == paramNode.name })
+//                            .map { getLine(it) }
+//                            .distinct().filter { it != 0 }
+//                            .flatMap { nodesInLine(it).toList() }
+//                }
+//            }
+//        }
+//        return associated.asSequence()
     }
 
     private fun containsVar(node: Node, nameExpr: NameExpr): Boolean {

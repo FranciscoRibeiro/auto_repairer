@@ -1,11 +1,15 @@
 import fault_localization.FaultLocalizationType.SFL
 import fault_localization.FaultLocalizationType.QSFL
-import repair.BruteForceAdHocRepair
-import repair.BruteForceRankingNoSuspectRepair
-import repair.BruteForceRankingRepair
-import repair.LandmarkRepair
+import repair.*
 import java.io.File
 import kotlin.system.exitProcess
+
+val strategyOptions = mapOf("-a"    to "all",
+                            "-l"    to "landmark",
+                            "-lr"   to "landmark_ranking",
+                            "-br"   to "brute_force_ranking",
+                            "-ba"   to "brute_force_adhoc",
+                            "-bn"   to "brute_force_ranking_no_suspects")
 
 fun runCmd(cmd: String,
            dir: String = System.getProperty("user.dir"),
@@ -77,18 +81,9 @@ fun main(args: Array<String>) {
     val start = System.currentTimeMillis()
     val mutantIdentifier = args[2]
     val fileName = args[3]
-    val strategy = args.getOrElse(4, { "-a" })
-    val strategyDir = when(strategy){
-        "-a" -> "all"
-        "-l" -> "landmark"
-        "-br" -> "brute_force_ranking"
-        "-ba" -> "brute_force_adhoc"
-        "-bn" -> "brute_force_ranking_no_suspects"
-        else -> {
-            println("invalid option - executing as \"-a\"")
-            "all"
-        }
-    }
+    val strategy = validateStrategyOption(args.getOrElse(4, { "-a" }))
+    val strategyDir = setStrategyDir(strategy)
+
     val mutantFile = File("${args[0]}/${args[1]}/$mutantIdentifier/$fileName.java")
 
 //    val cu = StaticJavaParser.parse(File("src/main/java/TestFile.java"))
@@ -101,6 +96,7 @@ fun main(args: Array<String>) {
     /* lazy creation of potential fixes based on landmarks */
     val landmarkAlternatives =
             if(strategy == "-l" || strategy == "-a") LandmarkRepair().repair(buggyProgram, QSFL)
+            else if(strategy == "-lr") LandmarkRankingRepair().repair(buggyProgram, QSFL)
             else emptySequence()
 
     /* lazy creation of potential fixes based on the mut ops ranking */
@@ -114,13 +110,33 @@ fun main(args: Array<String>) {
     var counter = 0
     val x = (landmarkAlternatives + bruteForceAlternatives).toList()
 //    File("tmp/${++counter}.java").writeText(x[0].toString())
-            x.forEach { File("tmp_bn_v2/${++counter}.java").writeText(it.toString()) }
+            x.forEach { File("tmp_lr_v2/${++counter}.java").writeText(it.toString()) }
 //            .map { setupFix("${args[0]}/$fileName", fileName, it) }
 //            .map { saveFix("${args[0]}/$fileName/patches/$strategyDir/${mutantIdentifier.replace("/","_")}", ++counter, it) }
 //            .find { passTests("${args[0]}/$fileName") }
 
     println(System.currentTimeMillis() - start)
     if(x == null) exitProcess(1)
+}
+
+fun setStrategyDir(strategy: String): String {
+    return strategyOptions[strategy] ?: run {
+        printError("invalid option - executing as \"-a\"")
+        "all"
+    }
+}
+
+fun printError(msg: String) {
+    System.err.println(msg)
+}
+
+fun validateStrategyOption(strategy: String): String {
+    return if(strategyOptions.contains(strategy))
+        strategy
+    else {
+        printError("invalid option - executing as \"-a\"")
+        "-a"
+    }
 }
 
 fun saveFix(patchDir: String, n: Int, fix: AlternativeProgram) {

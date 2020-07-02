@@ -32,11 +32,6 @@ class BruteForceRankingNoSuspectRepair: RepairStrategy() {
                     .filter { it.second.isNotEmpty() }
     }
 
-    private fun pairWithMutOp(node: Node): Sequence<Pair<Node, MutatorRepair<*>>> {
-        val mutOps = mutators[node.javaClass] ?: return emptySequence()
-        return mutOps.asSequence().map { node to it }
-    }
-
     private fun mutate(program: BuggyProgram, mutOp: MutatorRepair<*>, node: Node): List<Node> {
         return mutOp.repair(program, node)
     }
