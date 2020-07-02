@@ -1,6 +1,7 @@
 import fault_localization.FaultLocalizationType.SFL
 import fault_localization.FaultLocalizationType.QSFL
 import repair.BruteForceAdHocRepair
+import repair.BruteForceRankingNoSuspectRepair
 import repair.BruteForceRankingRepair
 import repair.LandmarkRepair
 import java.io.File
@@ -73,6 +74,7 @@ fun main(args: Array<String>) {
     val fileName = "HierarchyPropertyParser"*/
     /*val mutantIdentifier = "rrc"
     val fileName = "TestFile"*/
+    val start = System.currentTimeMillis()
     val mutantIdentifier = args[2]
     val fileName = args[3]
     val strategy = args.getOrElse(4, { "-a" })
@@ -81,6 +83,7 @@ fun main(args: Array<String>) {
         "-l" -> "landmark"
         "-br" -> "brute_force_ranking"
         "-ba" -> "brute_force_adhoc"
+        "-bn" -> "brute_force_ranking_no_suspects"
         else -> {
             println("invalid option - executing as \"-a\"")
             "all"
@@ -104,17 +107,19 @@ fun main(args: Array<String>) {
     val bruteForceAlternatives =
             if(strategy == "-br" || strategy == "-a") BruteForceRankingRepair().repair(buggyProgram, SFL)
             else if(strategy == "-ba") BruteForceAdHocRepair().repair(buggyProgram, SFL)
+            else if(strategy == "-bn") BruteForceRankingNoSuspectRepair().repair(buggyProgram, SFL)
             else emptySequence()
 
     /* stop when a mutant fixes the program */
     var counter = 0
     val x = (landmarkAlternatives + bruteForceAlternatives).toList()
 //    File("tmp/${++counter}.java").writeText(x[0].toString())
-            x.forEach { File("tmp_br/${++counter}.java").writeText(it.toString()) }
+            x.forEach { File("tmp_bn_v2/${++counter}.java").writeText(it.toString()) }
 //            .map { setupFix("${args[0]}/$fileName", fileName, it) }
 //            .map { saveFix("${args[0]}/$fileName/patches/$strategyDir/${mutantIdentifier.replace("/","_")}", ++counter, it) }
 //            .find { passTests("${args[0]}/$fileName") }
 
+    println(System.currentTimeMillis() - start)
     if(x == null) exitProcess(1)
 }
 
