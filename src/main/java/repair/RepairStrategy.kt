@@ -13,6 +13,7 @@ import com.github.javaparser.printer.lexicalpreservation.LexicalPreservingPrinte
 import fault_localization.FaultLocalizationType
 import repair.mutators.*
 import java.lang.IllegalArgumentException
+import java.util.*
 
 abstract class RepairStrategy {
     val mutators = mapOf<Class<out Node>, List<MutatorRepair<*>>>(
@@ -76,5 +77,9 @@ abstract class RepairStrategy {
     internal fun pairWithMutOp(node: Node): Sequence<Pair<Node, MutatorRepair<*>>> {
         val mutOps = mutators[node.javaClass] ?: return emptySequence()
         return mutOps.asSequence().map { node to it }
+    }
+
+    internal fun <T> Sequence<T>.mix(): Sequence<T> {
+        return this.asIterable().shuffled(Random(1573)).asSequence()
     }
 }

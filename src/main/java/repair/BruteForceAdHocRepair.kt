@@ -5,7 +5,6 @@ import BuggyProgram
 import com.github.javaparser.ast.Node
 import fault_localization.FaultLocalizationType
 import repair.mutators.MutatorRepair
-import java.util.*
 
 class BruteForceAdHocRepair: RepairStrategy() {
     override fun repair(program: BuggyProgram, basedOn: FaultLocalizationType): Sequence<AlternativeProgram> {
@@ -28,8 +27,4 @@ class BruteForceAdHocRepair: RepairStrategy() {
     private fun mutate(program: BuggyProgram, mutOp: MutatorRepair<*>, node: Node): List<Node> {
         return mutOp.repair(program, node)
     }
-}
-
-private fun <T> Sequence<T>.mix(): Sequence<T> {
-    return this.asIterable().shuffled(Random(1573)).asSequence()
 }
