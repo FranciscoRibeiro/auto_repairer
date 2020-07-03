@@ -111,7 +111,7 @@ fun main(args: Array<String>) {
             else emptySequence()
 
     /* total number of potential patches */
-    println("___ ${(landmarkAlternatives + bruteForceAlternatives).toList().size}")
+//    println("___ ${(landmarkAlternatives + bruteForceAlternatives).toList().size}")
 
     /* stop when a mutant fixes the program */
     var counter = 0
