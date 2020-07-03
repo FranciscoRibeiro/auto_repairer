@@ -7,6 +7,7 @@ import com.github.javaparser.ast.body.MethodDeclaration
 import com.github.javaparser.ast.body.VariableDeclarator
 import com.github.javaparser.ast.expr.*
 import com.github.javaparser.ast.type.PrimitiveType
+import com.github.javaparser.ast.type.ReferenceType
 import com.github.javaparser.ast.type.Type
 import com.github.javaparser.resolution.UnsolvedSymbolException
 import com.github.javaparser.resolution.declarations.ResolvedValueDeclaration
@@ -105,4 +106,10 @@ fun getTargetOfAssign(expr: Expression): String? {
 
 fun forNumbers(op: UnaryExpr.Operator): Boolean {
     return op == UnaryExpr.Operator.BITWISE_COMPLEMENT
+}
+
+fun isString(expr: Expression): Boolean {
+    val type = expr.calculateResolvedType()
+    return if(type is ResolvedReferenceType) type.qualifiedName == "java.lang.String"
+    else false
 }

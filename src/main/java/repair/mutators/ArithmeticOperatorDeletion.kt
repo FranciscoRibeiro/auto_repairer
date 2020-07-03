@@ -4,6 +4,7 @@ import BuggyProgram
 import com.github.javaparser.ast.expr.BinaryExpr
 import com.github.javaparser.ast.expr.Expression
 import repair.mutators.utils.isArithmetic
+import repair.mutators.utils.isString
 
 class ArithmeticOperatorDeletion: MutatorRepair<BinaryExpr>() {
     override val rank: Int
@@ -11,7 +12,8 @@ class ArithmeticOperatorDeletion: MutatorRepair<BinaryExpr>() {
 
     override fun checkedRepair(program: BuggyProgram, binExpr: BinaryExpr): List<Expression> {
         return if(isArithmetic(binExpr.operator)){
-            listOf(binExpr.left.clone(), binExpr.right.clone())
+            return if(isString(binExpr.left) || isString(binExpr.right)) emptyList()
+            else listOf(binExpr.left.clone(), binExpr.right.clone())
         } else { emptyList() }
     }
 }
