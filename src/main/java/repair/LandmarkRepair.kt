@@ -15,7 +15,7 @@ import repair.mutators.utils.isRelational
 
 class LandmarkRepair: RepairStrategy() {
     override fun repair(program: BuggyProgram, basedOn: FaultLocalizationType): Sequence<AlternativeProgram> {
-        return program.mostLikelyFaulty(basedOn, 2)
+        return program.mostLikelyFaulty(basedOn, 5)
                         .map { it.map { program.nodeInfo(it) } }
                         .map { it.filterIsInstance<Landmark>() }
                         .map { it.map { it.fullRelation to program.findNodes(it) } }

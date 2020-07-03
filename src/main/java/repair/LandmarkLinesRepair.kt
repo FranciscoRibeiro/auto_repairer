@@ -13,12 +13,12 @@ import repair.mutators.MutatorRepair
 
 class LandmarkLinesRepair: RepairStrategy() {
     override fun repair(program: BuggyProgram, basedOn: FaultLocalizationType): Sequence<AlternativeProgram> {
-        val landmarks = program.mostLikelyFaulty(basedOn, 2)
+        val landmarks = program.mostLikelyFaulty(basedOn, 5)
                                 .map { it.map { program.nodeInfo(it) } }
                                 .map { it.filterIsInstance<Landmark>() }
                                 //.flatten()
 
-        val lines = program.mostLikelyFaulty(basedOn, 2)
+        val lines = program.mostLikelyFaulty(basedOn, 5)
                             .map { it.map { program.nodeInfo(it) } }
                             .map { it.filterIsInstance<Line>() }
                             .map { it.map { it.line } }

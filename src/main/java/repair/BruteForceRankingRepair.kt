@@ -8,7 +8,7 @@ import repair.mutators.MutatorRepair
 
 class BruteForceRankingRepair: RepairStrategy() {
     override fun repair(program: BuggyProgram, basedOn: FaultLocalizationType): Sequence<AlternativeProgram> {
-        val alts = program.mostLikelyFaulty(basedOn, 3)
+        val alts = program.mostLikelyFaulty(basedOn, 5)
                         .map { it.map { it to program.nodesInLine(it) } }
 //                      .map { createMutants(program, it.second) }
                         .map { createMutants(program, it.flatMap { it.second }) }
