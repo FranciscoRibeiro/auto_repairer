@@ -19,9 +19,10 @@ fun main(args: Array<String>) {
 }
 
 fun extractMostLikelyLandmarks(qsflTriple: Triple<File, QSFLDiagnosis, Nodes>): Pair<String, List<String>> {
-//    return Pair(qsflTriple.first.name.replace("_", "/"),
-//                qsflTriple.second.mostLikelyFaulty(1)
-//                        .filter { qsflTriple.third[it] is Landmark }
-//                        .map { "$it ${qsflTriple.second[it]} LANDMARK" })
-    TODO()
+    val y = Pair(qsflTriple.first.name.replace("_", "/"),
+                qsflTriple.second.mostLikelyFaulty(1).toList().map { it.toList() }.flatten()
+                        .filter { qsflTriple.third[it] is Landmark }
+                        //.map { "$it ${qsflTriple.second.faultyNodes[it]} LANDMARK" })
+                        .map { lid -> "$lid ${qsflTriple.second.faultyNodes.mapNotNull { it[lid] }}" })
+    return y
 }
