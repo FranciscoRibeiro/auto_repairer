@@ -82,11 +82,11 @@ fun main(args: Array<String>) {
     val fileName = "HierarchyPropertyParser"*/
     /*val mutantIdentifier = "rrc"
     val fileName = "TestFile"*/
-//    val start = System.currentTimeMillis()
     val mutantIdentifier = args[2]
     val fileName = args[3]
     val strategy = validateStrategyOption(args.getOrElse(4, { "-a" }))
     val strategyDir = setStrategyDir(strategy)
+    val countOnly = validateCountOption(args.getOrNull(5))
 
     val mutantFile = File("${args[0]}/${args[1]}/$mutantIdentifier/$fileName.java")
 
@@ -114,19 +114,23 @@ fun main(args: Array<String>) {
             else if(strategy == "-bn") BruteForceRankingNoSuspectRepair().repair(buggyProgram, SFL)
             else emptySequence()
 
-    /* total number of potential patches */
-//    println("___ ${(landmarkAlternatives + bruteForceAlternatives).toList().size}")
-
-    /* stop when a mutant fixes the program */
     var counter = 0
-    val x = (landmarkAlternatives + bruteForceAlternatives)/*.toList()*/
-//            x.forEach { File("tmp_lsa/${++counter}.java").writeText(it.toString()) }
-            .map { setupFix("${args[0]}/$fileName", fileName, it) }
-            .map { saveFix("${args[0]}/$fileName/patches/$strategyDir/${mutantIdentifier.replace("/","_")}", ++counter, it) }
-            .find { passTests("${args[0]}/$fileName") }
+    val alternatives = (landmarkAlternatives + bruteForceAlternatives)
+    if(countOnly) { /* total number of potential patches */
+        println(alternatives.toList().size)
+    } else { /* stop when a mutant fixes the program */
+        val fix = alternatives
+//                .forEach { File("tmp_lsr/${++counter}.java").writeText(it.toString()) }
+                .map { setupFix("${args[0]}/$fileName", fileName, it) }
+                .map { saveFix("${args[0]}/$fileName/patches/$strategyDir/${mutantIdentifier.replace("/","_")}", ++counter, it) }
+                .find { passTests("${args[0]}/$fileName") }
 
-//    println(System.currentTimeMillis() - start)
-    if(x == null) exitProcess(1)
+        if(fix == null) exitProcess(1)
+    }
+}
+
+fun validateCountOption(count: String?): Boolean {
+    return !(count == null || count != "--count")
 }
 
 fun setStrategyDir(strategy: String): String {
