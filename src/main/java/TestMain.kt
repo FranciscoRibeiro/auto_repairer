@@ -7,8 +7,10 @@ import kotlin.system.exitProcess
 val strategyOptions = mapOf("-a"    to "all",
                             "-l"    to "landmark",
                             "-lr"   to "landmark_ranking",
+                            "-lsr"  to "landmark_strict_ranking",
                             "-ll"   to "landmark_lines",
                             "-la"   to "landmark_adhoc",
+                            "-lsa"  to "landmark_strict_adhoc",
                             "-br"   to "brute_force_ranking",
                             "-ba"   to "brute_force_adhoc",
                             "-bn"   to "brute_force_ranking_no_suspects")
@@ -99,7 +101,9 @@ fun main(args: Array<String>) {
     val landmarkAlternatives =
             if(strategy == "-l" || strategy == "-a") LandmarkRepair().repair(buggyProgram, QSFL)
             else if(strategy == "-lr") LandmarkRankingRepair().repair(buggyProgram, QSFL)
+            else if(strategy == "-lsr") LandmarkStrictRankingRepair().repair(buggyProgram, QSFL)
             else if(strategy == "-la") LandmarkAdHocRepair().repair(buggyProgram, QSFL)
+            else if(strategy == "-lsa") LandmarkStrictAdHocRepair().repair(buggyProgram, QSFL)
             else if(strategy == "-ll") LandmarkLinesRepair().repair(buggyProgram, QSFL)
             else emptySequence()
 
@@ -116,8 +120,7 @@ fun main(args: Array<String>) {
     /* stop when a mutant fixes the program */
     var counter = 0
     val x = (landmarkAlternatives + bruteForceAlternatives)/*.toList()*/
-//    File("tmp/${++counter}.java").writeText(x[0].toString())
-//            x.forEach { File("tmp_ll/${++counter}.java").writeText(it.toString()) }
+//            x.forEach { File("tmp_lsa/${++counter}.java").writeText(it.toString()) }
             .map { setupFix("${args[0]}/$fileName", fileName, it) }
             .map { saveFix("${args[0]}/$fileName/patches/$strategyDir/${mutantIdentifier.replace("/","_")}", ++counter, it) }
             .find { passTests("${args[0]}/$fileName") }
