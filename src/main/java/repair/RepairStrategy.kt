@@ -11,6 +11,7 @@ import com.github.javaparser.ast.stmt.ExpressionStmt
 import com.github.javaparser.ast.stmt.ReturnStmt
 import com.github.javaparser.printer.lexicalpreservation.LexicalPreservingPrinter.setup
 import fault_localization.FaultLocalizationType
+import printError
 import repair.mutators.*
 import java.lang.IllegalArgumentException
 import java.util.*
@@ -51,9 +52,9 @@ abstract class RepairStrategy {
             try {
                 nodeToReplace.replace(mutant)
             } catch (e: UnsupportedOperationException){
-                println("UnsupportedOperationException: Failed to replace \"$nodeToReplace\" with \"$mutant\"")
+                printError("UnsupportedOperationException: Failed to replace \"$nodeToReplace\" with \"$mutant\"")
             } catch (e: IllegalArgumentException){
-                println("IllegalArgumentException: Failed to replace \"$nodeToReplace\" with \"$mutant\"")
+                printError("IllegalArgumentException: Failed to replace \"$nodeToReplace\" with \"$mutant\"")
             }
             alternatives.add(AlternativeProgram(mutant, tree))
         }
