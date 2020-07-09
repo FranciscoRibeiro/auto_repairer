@@ -17,6 +17,8 @@ import com.github.javaparser.resolution.types.ResolvedType
 import com.github.javaparser.symbolsolver.javaparsermodel.declarations.JavaParserFieldDeclaration
 import com.github.javaparser.symbolsolver.javaparsermodel.declarations.JavaParserParameterDeclaration
 import com.github.javaparser.symbolsolver.javaparsermodel.declarations.JavaParserSymbolDeclaration
+import printError
+import java.lang.RuntimeException
 
 fun getEnclosing(nameExpr: NameExpr): MethodDeclaration? {
     return nameExpr.findAncestor(MethodDeclaration::class.java).orElse(null)
@@ -109,7 +111,12 @@ fun forNumbers(op: UnaryExpr.Operator): Boolean {
 }
 
 fun isString(expr: Expression): Boolean {
-    val type = expr.calculateResolvedType()
+    val type = try {
+        expr.calculateResolvedType()
+    } catch (e: RuntimeException){
+        printError("Could not calculate type of \"$expr\"")
+        return false
+    }
     return if(type is ResolvedReferenceType) type.qualifiedName == "java.lang.String"
     else false
 }
