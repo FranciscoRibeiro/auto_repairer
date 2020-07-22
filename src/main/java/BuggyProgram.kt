@@ -22,7 +22,7 @@ class BuggyProgram(val path: String, val sourceFile: File) {
 
     private fun parseAndSolve(): CompilationUnit {
         StaticJavaParser.getConfiguration().setSymbolResolver(JavaSymbolSolver(CombinedTypeSolver(ReflectionTypeSolver())))
-        return setup(StaticJavaParser.parse(sourceFile))
+        return /*setup(*/StaticJavaParser.parse(sourceFile)/*)*/
     }
 
     fun mostLikelyFaulty(basedOn: FaultLocalizationType, upTo: Int = 1): Sequence<Sequence<Int>> {

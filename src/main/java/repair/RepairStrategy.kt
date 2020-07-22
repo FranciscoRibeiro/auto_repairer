@@ -47,18 +47,19 @@ abstract class RepairStrategy {
         val alternatives = mutableListOf<AlternativeProgram>()
 
         for(mutant in mutantNodes){
-            val tree = setup(buggyProgram.getOriginalTree())
+            val tree = /*setup(*/buggyProgram.getOriginalTree()/*)*/
             val nodeToReplace = findEqualNode(tree, originalNode) ?: return emptySequence()
             try {
                 nodeToReplace.replace(mutant)
+                alternatives.add(AlternativeProgram(mutant, tree))
             } catch (e: UnsupportedOperationException){
                 printError("UnsupportedOperationException: Failed to replace \"$nodeToReplace\" with \"$mutant\"")
+                printError("parent: ${originalNode.parentNode.get()}")
             } catch (e: IllegalArgumentException){
                 printError("IllegalArgumentException: Failed to replace \"$nodeToReplace\" with \"$mutant\"")
+                printError("parent: ${originalNode.parentNode.get()}")
             }
-            alternatives.add(AlternativeProgram(mutant, tree))
         }
-
         return alternatives.asSequence()
     }
 
@@ -83,4 +84,24 @@ abstract class RepairStrategy {
     internal fun <T> Sequence<T>.mix(): Sequence<T> {
         return this.asIterable().shuffled(Random(1573)).asSequence()
     }
+}
+
+internal fun <T> Sequence<Sequence<T>>.removeDups(): Sequence<Sequence<T>> {
+    val noDups = mutableListOf<MutableList<T>>()
+    for (elemList in this){
+        val subNoDups = mutableListOf<T>()
+        noDups.add(subNoDups)
+        for(elem in elemList){
+            if(!noDups.has(elem)){
+                subNoDups.add(elem)
+            }
+        }
+    }
+    return noDups.map { it.asSequence() }.asSequence()
+}
+
+internal fun <E, T> List<List<E>>.has(e: T): Boolean {
+    return this
+            .flatMap { it }
+            .any { it === e }
 }
