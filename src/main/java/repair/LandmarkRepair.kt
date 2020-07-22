@@ -12,6 +12,7 @@ import repair.mutators.ConditionalOperatorInsertion
 import repair.mutators.IntConstantModification
 import repair.mutators.RelationalOperatorReplacement
 import repair.mutators.utils.isRelational
+import java.lang.NumberFormatException
 
 class LandmarkRepair: RepairStrategy() {
     override fun repair(program: BuggyProgram, basedOn: FaultLocalizationType): Sequence<AlternativeProgram> {
@@ -34,24 +35,29 @@ class LandmarkRepair: RepairStrategy() {
         val (rel, pivot) = relAndPivot(relation)
         return when(node) {
             is BinaryExpr -> {
+                val pivotNumber = pivot.toIntOrNull() ?: return emptyList()
                 val rn = node.right
-                return if(rn is IntegerLiteralExpr && rn.asInt() != pivot.toInt()) {
-                    IntConstantModification(pivot.toInt()).repair(program, rn).map { BinaryExpr(node.left.clone(), (it as Expression), node.operator) }
-                }
-                else if(isRelational(node.operator)) {
-                    val relOp = toRelOp(rel) ?: return emptyList()
+                try {
+                    return if(rn is IntegerLiteralExpr && rn.asNumber() != pivotNumber) {
+                        IntConstantModification(pivot.toInt()).repair(program, rn).map { BinaryExpr(node.left.clone(), (it as Expression), node.operator) }
+                    }
+                    else if(isRelational(node.operator)) {
+                        val relOp = toRelOp(rel) ?: return emptyList()
 
-                    return if(relOp == node.operator) emptyList()
-                    else if(incorporatesRelation(node.operator, relOp)){
-                        val newOp = subtractRelation(node.operator, relOp) ?: return emptyList()
-                        RelationalOperatorReplacement(newOp).repair(program, node)
+                        return if(relOp == node.operator) emptyList()
+                        else if(incorporatesRelation(node.operator, relOp)){
+                            val newOp = subtractRelation(node.operator, relOp) ?: return emptyList()
+                            RelationalOperatorReplacement(newOp).repair(program, node)
+                        }
+                        else {
+                            val landmarkExpr = BinaryExpr(node.left, IntegerLiteralExpr(pivot), relOp)
+                            ConditionalOperatorInsertion(BinaryExpr.Operator.OR, landmarkExpr).repair(program, node)
+                        }
                     }
-                    else {
-                        val landmarkExpr = BinaryExpr(node.left, IntegerLiteralExpr(pivot), relOp)
-                        ConditionalOperatorInsertion(BinaryExpr.Operator.OR, landmarkExpr).repair(program, node)
-                    }
+                    else emptyList()
+                } catch (e: NumberFormatException){
+                    emptyList<Node>()
                 }
-                else emptyList()
             }
             else -> emptyList()
         }
