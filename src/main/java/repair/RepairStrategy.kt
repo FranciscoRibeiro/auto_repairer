@@ -31,7 +31,7 @@ abstract class RepairStrategy {
             ReturnStmt::class.java to listOf(ReturnValue()),
             UnaryExpr::class.java to listOf(UnaryOperatorDeletion(), UnaryOperatorReplacement()),
             MethodCallExpr::class.java to listOf(NonVoidMethodDeletion(), VoidMethodDeletion(), AccessorMethodChange()),
-            FieldDeclaration::class.java to listOf(MemberVariableAssignmentDeletion(), StaticModifierChange()),
+            FieldDeclaration::class.java to listOf(MemberVariableAssignmentDeletion(), StaticModifierDeletion(), StaticModifierInsertion()),
             Modifier::class.java to listOf(AccessorModifierChange()),
             ObjectCreationExpr::class.java to listOf(ConstructorCallReplacementNull()),
             FieldAccessExpr::class.java to listOf(ReferenceReplacementContent())

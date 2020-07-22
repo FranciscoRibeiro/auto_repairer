@@ -117,10 +117,9 @@ fun main(args: Array<String>) {
     var counter = 0
     val alternatives = (landmarkAlternatives + bruteForceAlternatives)
     if(countOnly) { /* total number of potential patches */
-        println(alternatives.toList().size)
-//        alternatives.forEach { File("tmp_br/${++counter}.java").writeText(it.toString()) }
-        //val alternatives2 = alternatives.toList()
-        //alternatives2.forEach { File("tmp_lr_v2/${++counter}.java").writeText(it.toString()) }
+        val alternativesStrict = alternatives.toList()
+        println(alternativesStrict.size)
+//        alternativesStrict.forEach { File("tmp_br/${++counter}.java").writeText(it.toString()) }
     } else { /* stop when a mutant fixes the program */
         val fix = alternatives
 //                .forEach { File("tmp_lsr/${++counter}.java").writeText(it.toString()) }
