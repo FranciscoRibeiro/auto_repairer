@@ -6,6 +6,7 @@ import com.github.javaparser.ast.expr.Expression
 import com.github.javaparser.ast.expr.NameExpr
 import com.github.javaparser.ast.expr.UnaryExpr
 import com.github.javaparser.resolution.types.ResolvedPrimitiveType
+import repair.mutators.utils.calcType
 import repair.mutators.utils.getParent
 import repair.mutators.utils.isConditional
 
@@ -22,7 +23,8 @@ class UnaryOperatorInsertion(): MutatorRepair<Expression>() {
         if(parent is UnaryExpr) return emptyList()
 
         return if(expr is NameExpr){
-            val type = expr.calculateResolvedType()
+//            val type = expr.calculateResolvedType()
+            val type = calcType(expr) ?: return emptyList()
             if(type is ResolvedPrimitiveType){
                 when {
                     type.isNumeric -> {

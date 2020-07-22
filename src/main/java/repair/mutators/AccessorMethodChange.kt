@@ -6,6 +6,7 @@ import com.github.javaparser.ast.body.MethodDeclaration
 import com.github.javaparser.ast.body.Parameter
 import com.github.javaparser.ast.expr.MethodCallExpr
 import com.github.javaparser.ast.expr.SimpleName
+import repair.mutators.utils.resolveDecl
 
 class AccessorMethodChange: MutatorRepair<MethodCallExpr>() {
     override val rank: Int
@@ -41,7 +42,9 @@ class AccessorMethodChange: MutatorRepair<MethodCallExpr>() {
     }
 
     private fun getAccessorDeclaration(metCall: MethodCallExpr): MethodDeclaration? {
-        val metDecl = metCall.resolve().toAst().orElse(null) ?: return null
+//        val metDecl = metCall.resolve().toAst().orElse(null) ?: return null
+        val metDecl = resolveDecl(metCall)?.toAst()?.orElse(null) ?: return null
+//        val metAST = metDecl.toAst().orElse(null) ?: return null
         return if(metDecl.isStatic) null else metDecl
     }
 }

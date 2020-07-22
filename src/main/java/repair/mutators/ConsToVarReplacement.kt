@@ -19,7 +19,8 @@ class ConsToVarReplacement: MutatorRepair<LiteralExpr>() {
                     .map { it.nameAsString }
             )
 
-            varNames.addAll(enclosing.findAll(NameExpr::class.java, { isInScope(it, litExpr) && isTypeNumber(it.calculateResolvedType()) })
+//            varNames.addAll(enclosing.findAll(NameExpr::class.java, { isInScope(it, litExpr) && isTypeNumber(it.calculateResolvedType()) })
+            varNames.addAll(enclosing.findAll(NameExpr::class.java, { isInScope(it, litExpr) && isTypeNumber(it) })
                     .map { it.nameAsString }
             )
         }

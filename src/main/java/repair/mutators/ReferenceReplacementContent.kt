@@ -5,6 +5,7 @@ import com.github.javaparser.ast.Node
 import com.github.javaparser.ast.body.VariableDeclarator
 import com.github.javaparser.ast.expr.*
 import com.github.javaparser.resolution.types.ResolvedReferenceType
+import repair.mutators.utils.calcType
 import repair.mutators.utils.getParent
 
 class ReferenceReplacementContent: MutatorRepair<Expression>() {
@@ -16,7 +17,8 @@ class ReferenceReplacementContent: MutatorRepair<Expression>() {
 
         val parent = getParent(expr) ?: return emptyList()
         return if((parent is AssignExpr || parent is VariableDeclarator) && isRHSAssignment(parent, expr)){
-            val type = expr.calculateResolvedType()
+//            val type = expr.calculateResolvedType()
+            val type = calcType(expr) ?: return emptyList()
             if(type is ResolvedReferenceType){
                 listOf(MethodCallExpr(expr, "clone"))
             } else emptyList()

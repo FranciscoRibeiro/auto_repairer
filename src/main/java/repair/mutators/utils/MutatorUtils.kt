@@ -7,8 +7,8 @@ import com.github.javaparser.ast.body.MethodDeclaration
 import com.github.javaparser.ast.body.VariableDeclarator
 import com.github.javaparser.ast.expr.*
 import com.github.javaparser.ast.type.PrimitiveType
-import com.github.javaparser.ast.type.ReferenceType
 import com.github.javaparser.ast.type.Type
+import com.github.javaparser.resolution.Resolvable
 import com.github.javaparser.resolution.UnsolvedSymbolException
 import com.github.javaparser.resolution.declarations.ResolvedValueDeclaration
 import com.github.javaparser.resolution.types.ResolvedPrimitiveType
@@ -44,6 +44,11 @@ fun isTypeNumber(type: Type): Boolean {
     return if(type is PrimitiveType) type.toString() != "boolean" else false
 }
 
+fun isTypeNumber(expr: Expression): Boolean {
+    val type = calcType(expr) ?: return false
+    return isTypeNumber(type)
+}
+
 fun isTypeReference(type: ResolvedType): Boolean {
     return type is ResolvedReferenceType
 }
@@ -53,7 +58,13 @@ fun isNumeric(litExpr: LiteralExpr): Boolean {
 }
 
 fun isInScope(decl: NameExpr, litExpr: LiteralExpr): Boolean {
-    val varDecl = try { decl.resolve() } catch (e: UnsolvedSymbolException) { return false }
+    /*val varDecl = try {
+        decl.resolve()
+    } catch (e: UnsolvedSymbolException) {
+        e.printStackTrace()
+        return false
+    }*/
+    val varDecl = resolveDecl(decl) ?: return false
     return line(varDecl) < litExpr.range.get().begin.line
 }
 
@@ -111,12 +122,34 @@ fun forNumbers(op: UnaryExpr.Operator): Boolean {
 }
 
 fun isString(expr: Expression): Boolean {
-    val type = try {
+    /*val type = try {
         expr.calculateResolvedType()
     } catch (e: RuntimeException){
         printError("Could not calculate type of \"$expr\"")
         return false
-    }
+    }*/
+    val type = calcType(expr)
     return if(type is ResolvedReferenceType) type.qualifiedName == "java.lang.String"
     else false
+}
+
+fun calcType(expr: Expression): ResolvedType? {
+    return try {
+        expr.calculateResolvedType()
+    } catch(e: UnsolvedSymbolException){
+        printError("Could not calculate type of \"$expr\"")
+        null
+    } catch (e: RuntimeException){
+        printError("Could not calculate type of \"$expr\"")
+        null
+    }
+}
+
+fun <T> resolveDecl(res: Resolvable<T>): T? {
+    return try {
+        res.resolve()
+    } catch(e: UnsolvedSymbolException){
+        printError("Could not resolve named expression \"$res\"")
+        null
+    }
 }

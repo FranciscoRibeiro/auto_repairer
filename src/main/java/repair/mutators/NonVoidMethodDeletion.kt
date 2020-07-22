@@ -12,6 +12,7 @@ import com.github.javaparser.resolution.types.ResolvedPrimitiveType
 import com.github.javaparser.resolution.types.ResolvedReferenceType
 import com.github.javaparser.resolution.types.ResolvedType
 import com.github.javaparser.resolution.types.ResolvedVoidType
+import repair.mutators.utils.calcType
 import java.lang.Exception
 
 class NonVoidMethodDeletion: MutatorRepair<MethodCallExpr>() {
@@ -19,12 +20,13 @@ class NonVoidMethodDeletion: MutatorRepair<MethodCallExpr>() {
         get() = 8
 
     override fun checkedRepair(program: BuggyProgram, metCall: MethodCallExpr): List<Expression> {
-        val retType: ResolvedType
+        /*val retType: ResolvedType
         try {
             retType = metCall.calculateResolvedType()
         } catch (e: Exception){
             return emptyList()
-        }
+        }*/
+        val retType = calcType(metCall)
         return if(retType !is ResolvedVoidType){
             val target = metCall.scope.orElse(null)
             return if(target == null){

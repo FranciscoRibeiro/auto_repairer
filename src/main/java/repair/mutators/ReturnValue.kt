@@ -4,6 +4,7 @@ import BuggyProgram
 import com.github.javaparser.ast.expr.*
 import com.github.javaparser.ast.stmt.ReturnStmt
 import com.github.javaparser.resolution.types.ResolvedReferenceType
+import repair.mutators.utils.calcType
 
 class ReturnValue: MutatorRepair<ReturnStmt>() {
     override val rank: Int
@@ -21,7 +22,8 @@ class ReturnValue: MutatorRepair<ReturnStmt>() {
     }
 
     private fun emptyReturn(nameExpr: NameExpr): Expression? {
-        val resType = nameExpr.calculateResolvedType() as? ResolvedReferenceType ?: return null
+//        val resType = nameExpr.calculateResolvedType() as? ResolvedReferenceType ?: return null
+        val resType = calcType(nameExpr) as? ResolvedReferenceType ?: return null
         return when(resType.qualifiedName){
             "java.lang.String" -> StringLiteralExpr("")
             "java.util.Optional" -> MethodCallExpr(NameExpr("Optional"), SimpleName("empty"))

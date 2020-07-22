@@ -4,11 +4,12 @@ import BuggyProgram
 import com.github.javaparser.ast.body.Parameter
 import com.github.javaparser.ast.expr.NameExpr
 import com.github.javaparser.ast.type.ReferenceType
+import com.github.javaparser.resolution.UnsolvedSymbolException
+import com.github.javaparser.resolution.declarations.ResolvedReferenceTypeDeclaration
 import com.github.javaparser.resolution.types.ResolvedReferenceType
-import repair.mutators.utils.getEnclosing
-import repair.mutators.utils.getTargetOfAssign
-import repair.mutators.utils.isTypeNumber
-import repair.mutators.utils.isTypeReference
+import com.github.javaparser.resolution.types.ResolvedType
+import printError
+import repair.mutators.utils.*
 
 class VarToVarReplacement: MutatorRepair<NameExpr>() {
     override val rank: Int
@@ -16,7 +17,8 @@ class VarToVarReplacement: MutatorRepair<NameExpr>() {
 
     override fun checkedRepair(program: BuggyProgram, nameExpr: NameExpr): List<NameExpr> {
         val methodDecl = getEnclosing(nameExpr) ?: return emptyList()
-        val type = nameExpr.calculateResolvedType()
+//        val type = nameExpr.calculateResolvedType()
+        val type = calcType(nameExpr) ?: return emptyList()
         if(type.isArray) return emptyList()
         val varNames = mutableSetOf<String>()
 
@@ -26,7 +28,8 @@ class VarToVarReplacement: MutatorRepair<NameExpr>() {
                             .map { it.nameAsString }
             )
             varNames.addAll(
-                    methodDecl.findAll(NameExpr::class.java, { isTypeNumber(it.calculateResolvedType()) })
+//                    methodDecl.findAll(NameExpr::class.java, { isTypeNumber(it.calculateResolvedType()) })
+                    methodDecl.findAll(NameExpr::class.java, { isTypeNumber(it) })
                             .map { it.nameAsString }
             )
         }
@@ -48,7 +51,8 @@ class VarToVarReplacement: MutatorRepair<NameExpr>() {
     }
 
     private fun matchesType(nameExpr: NameExpr, type: ResolvedReferenceType): Boolean {
-        val exprType = nameExpr.calculateResolvedType()
+//        val exprType = nameExpr.calculateResolvedType()
+        val exprType = calcType(nameExpr) ?: return false
         return if(exprType is ResolvedReferenceType){
             exprType == type
         } else false
@@ -56,7 +60,7 @@ class VarToVarReplacement: MutatorRepair<NameExpr>() {
 
     private fun matchesType(param: Parameter, type: ResolvedReferenceType): Boolean {
         return if(param.type is ReferenceType){
-            type.typeDeclaration.name == param.type.toString().substringBefore("<")
+            type.typeDeclaration.get().name == param.type.toString().substringBefore("<")
         } else false
     }
 }

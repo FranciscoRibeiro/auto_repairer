@@ -4,6 +4,8 @@ import BuggyProgram
 import com.github.javaparser.ast.Node
 import com.github.javaparser.ast.body.Parameter
 import com.github.javaparser.ast.expr.*
+import com.github.javaparser.resolution.UnsolvedSymbolException
+import printError
 import repair.mutators.utils.*
 
 class VarToConsReplacement: MutatorRepair<NameExpr>() {
@@ -20,7 +22,8 @@ class VarToConsReplacement: MutatorRepair<NameExpr>() {
         }
 
         val methodDecl = getEnclosing(nameExpr) ?: return emptyList()
-        val type = nameExpr.calculateResolvedType()
+//        val type = nameExpr.calculateResolvedType()
+        val type = calcType(nameExpr) ?: return emptyList()
         if(type.isArray) return emptyList()
 
         return if(isTypeNumber(type)){
