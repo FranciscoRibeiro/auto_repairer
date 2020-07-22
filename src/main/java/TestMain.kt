@@ -115,7 +115,7 @@ fun main(args: Array<String>) {
             else emptySequence()
 
     var counter = 0
-    val alternatives = (landmarkAlternatives + bruteForceAlternatives)
+    val alternatives = (landmarkAlternatives + bruteForceAlternatives).distinctBy { it.modifiedProgram }
     if(countOnly) { /* total number of potential patches */
         val alternativesStrict = alternatives.toList()
         println(alternativesStrict.size)
