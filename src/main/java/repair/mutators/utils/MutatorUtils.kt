@@ -101,6 +101,11 @@ fun isBitshift(op: BinaryExpr.Operator): Boolean {
             || op == BinaryExpr.Operator.UNSIGNED_RIGHT_SHIFT
 }
 
+fun isBitwise(op: BinaryExpr.Operator): Boolean {
+    return op == BinaryExpr.Operator.BINARY_AND || op == BinaryExpr.Operator.BINARY_OR
+            || op == BinaryExpr.Operator.XOR
+}
+
 fun isLeftSideAssign(nameExpr: NameExpr): Boolean {
     return nameExpr.findAncestor(AssignExpr::class.java, { it.target === nameExpr }).isPresent
 }
