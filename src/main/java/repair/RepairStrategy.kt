@@ -21,7 +21,7 @@ abstract class RepairStrategy {
             BinaryExpr::class.java to listOf(RelationalOperatorReplacement(),
                     ConditionalOperatorReplacement(), ConditionalOperatorDeletion(),
                     ArithmeticOperatorReplacement(), ArithmeticOperatorDeletion(),
-                    UnaryOperatorInsertion(), RemoveConditional()),
+                    UnaryOperatorInsertion(), RemoveConditional(), BitshiftOperatorReplacement()),
             BooleanLiteralExpr::class.java to listOf(BooleanConstantModification()),
             IntegerLiteralExpr::class.java to listOf(IntConstantModification(), ConsToVarReplacement()),
             DoubleLiteralExpr::class.java to listOf(DoubleConstantModification()),
