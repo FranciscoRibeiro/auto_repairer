@@ -1,5 +1,6 @@
 package repair.mutators.utils
 
+import com.github.javaparser.StaticJavaParser
 import com.github.javaparser.ast.Node
 import com.github.javaparser.ast.body.CallableDeclaration
 import com.github.javaparser.ast.body.ConstructorDeclaration
@@ -10,6 +11,9 @@ import com.github.javaparser.ast.type.PrimitiveType
 import com.github.javaparser.ast.type.Type
 import com.github.javaparser.resolution.Resolvable
 import com.github.javaparser.resolution.UnsolvedSymbolException
+import com.github.javaparser.resolution.declarations.ResolvedConstructorDeclaration
+import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration
+import com.github.javaparser.resolution.declarations.ResolvedMethodLikeDeclaration
 import com.github.javaparser.resolution.declarations.ResolvedValueDeclaration
 import com.github.javaparser.resolution.types.ResolvedPrimitiveType
 import com.github.javaparser.resolution.types.ResolvedReferenceType
@@ -18,7 +22,6 @@ import com.github.javaparser.symbolsolver.javaparsermodel.declarations.JavaParse
 import com.github.javaparser.symbolsolver.javaparsermodel.declarations.JavaParserParameterDeclaration
 import com.github.javaparser.symbolsolver.javaparsermodel.declarations.JavaParserSymbolDeclaration
 import printError
-import java.lang.RuntimeException
 
 fun getEnclosing(nameExpr: NameExpr): MethodDeclaration? {
     return nameExpr.findAncestor(MethodDeclaration::class.java).orElse(null)
@@ -162,4 +165,41 @@ fun <T> resolveDecl(res: Resolvable<T>): T? {
         printError("Could not resolve named expression \"$res\"")
         null
     }
+}
+
+fun overloadingMethods(methodDecl: ResolvedMethodDeclaration): List<ResolvedMethodDeclaration>? {
+    val overloading = methodDecl.declaringType().declaredMethods
+            .filter { it.name == methodDecl.name && it.signature != methodDecl.signature }
+    return if(overloading.isEmpty()) null
+    else overloading
+}
+
+fun overloadingConstructors(methodDecl: ResolvedConstructorDeclaration): List<ResolvedConstructorDeclaration>? {
+    val overloading = methodDecl.declaringType().constructors
+            .filter { it.name == methodDecl.name && it.signature != methodDecl.signature }
+    return if(overloading.isEmpty()) null
+    else overloading
+}
+
+fun paramTypes(methodDecl: ResolvedMethodLikeDeclaration): List<ResolvedType> {
+    val nParams = methodDecl.numberOfParams
+    return (0..nParams-1).map { methodDecl.getParam(it).type }
+}
+
+fun pairWithType(expr: Expression): Pair<Expression, ResolvedType>? {
+    val type = calcType(expr) ?: return null
+    return expr to type
+}
+
+fun defaultValue(type: ResolvedType): Expression {
+    return if(type.isReferenceType) return StaticJavaParser.parseExpression<ObjectCreationExpr>("new ${type.describe()}()")
+    else if(type.isPrimitive){
+        when(type.asPrimitive().name){
+            "INT", "BYTE", "SHORT", "LONG" -> IntegerLiteralExpr()
+            "FLOAT", "DOUBLE" -> DoubleLiteralExpr()
+            "CHAR" -> CharLiteralExpr()
+            "BOOLEAN" -> BooleanLiteralExpr()
+            else -> NullLiteralExpr()
+        }
+    } else NullLiteralExpr()
 }
