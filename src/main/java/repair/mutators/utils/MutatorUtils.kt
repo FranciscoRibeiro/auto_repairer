@@ -109,8 +109,8 @@ fun isBitwise(op: BinaryExpr.Operator): Boolean {
             || op == BinaryExpr.Operator.XOR
 }
 
-fun isLeftSideAssign(nameExpr: NameExpr): Boolean {
-    return nameExpr.findAncestor(AssignExpr::class.java, { it.target === nameExpr }).isPresent
+fun isLeftSideAssign(expr: Expression): Boolean {
+    return expr.findAncestor(AssignExpr::class.java, { it.target === expr }).isPresent
 }
 
 fun isRHS(expr: BinaryExpr, variable: NameExpr): Boolean {
