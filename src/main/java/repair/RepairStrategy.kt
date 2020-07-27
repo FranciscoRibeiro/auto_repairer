@@ -6,6 +6,7 @@ import com.github.javaparser.ast.CompilationUnit
 import com.github.javaparser.ast.Modifier
 import com.github.javaparser.ast.Node
 import com.github.javaparser.ast.body.FieldDeclaration
+import com.github.javaparser.ast.body.Parameter
 import com.github.javaparser.ast.expr.*
 import com.github.javaparser.ast.stmt.ExpressionStmt
 import com.github.javaparser.ast.stmt.ReturnStmt
@@ -43,7 +44,8 @@ abstract class RepairStrategy {
             Modifier::class.java to listOf(AccessorModifierChange()),
             ObjectCreationExpr::class.java to listOf(ConstructorCallReplacementNull()),
             FieldAccessExpr::class.java to listOf(ReferenceReplacementContent(), Negation()),
-            ArrayAccessExpr::class.java to listOf(Negation())
+            ArrayAccessExpr::class.java to listOf(Negation()),
+            Parameter::class.java to listOf(ArgumentTypeChange())
     )
 
     abstract fun repair(program: BuggyProgram, basedOn: FaultLocalizationType): Sequence<AlternativeProgram>
