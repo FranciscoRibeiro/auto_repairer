@@ -9,6 +9,7 @@ import com.github.javaparser.resolution.types.ResolvedPrimitiveType
 import repair.mutators.utils.calcType
 import repair.mutators.utils.getParent
 import repair.mutators.utils.isConditional
+import repair.mutators.utils.isLeftSideAssign
 
 class UnaryOperatorInsertion(): MutatorRepair<Expression>() {
     override val rank: Int
@@ -19,6 +20,8 @@ class UnaryOperatorInsertion(): MutatorRepair<Expression>() {
             UnaryExpr.Operator.PLUS)
 
     override fun checkedRepair(program: BuggyProgram, expr: Expression): List<Expression> {
+        if(isLeftSideAssign(expr)) return emptyList()
+
         val parent = getParent(expr) ?: return emptyList()
         if(parent is UnaryExpr) return emptyList()
 
