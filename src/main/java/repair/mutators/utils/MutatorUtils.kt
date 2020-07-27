@@ -203,3 +203,24 @@ fun defaultValue(type: ResolvedType): Expression {
         }
     } else NullLiteralExpr()
 }
+
+fun simpleName(type: ResolvedType): String {
+    return type.describe().split(".").last()
+}
+
+fun isSameType(type: Type, resType: ResolvedType): Boolean {
+    return type.toString() == simpleName(resType)
+}
+
+fun isSameType(expr: Expression, resType: ResolvedType): Boolean {
+    val type = calcType(expr) ?: return false
+    return type == resType
+}
+
+fun getOtherSide(expr: Expression): String? {
+    val parent = getParent(expr) ?: return null
+    return if(parent is BinaryExpr){
+        return if(parent.left === expr) parent.right.toString()
+        else parent.left.toString()
+    } else null
+}

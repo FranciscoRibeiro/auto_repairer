@@ -19,14 +19,22 @@ class ConsToVarReplacement: MutatorRepair<LiteralExpr>() {
                     .map { it.nameAsString }
             )
 
-//            varNames.addAll(enclosing.findAll(NameExpr::class.java, { isInScope(it, litExpr) && isTypeNumber(it.calculateResolvedType()) })
             varNames.addAll(enclosing.findAll(NameExpr::class.java, { isInScope(it, litExpr) && isTypeNumber(it) })
+                    .map { it.nameAsString }
+            )
+        } else {
+            val type = calcType(litExpr) ?: return emptyList()
+            varNames.addAll(enclosing.findAll(Parameter::class.java, { isSameType(it.type, type) })
+                    .map { it.nameAsString }
+            )
+
+            varNames.addAll(enclosing.findAll(NameExpr::class.java, { isInScope(it, litExpr) && isSameType(it, type) })
                     .map { it.nameAsString }
             )
         }
 
-        val targetAssign = getTargetOfAssign(litExpr)
-        val res = varNames.filter { it != targetAssign }
+        val targetExpr = getTargetOfAssign(litExpr) ?: getOtherSide(litExpr)
+        val res = varNames.filter { it != targetExpr }
                             .map { NameExpr().setName(it) }
         return res
     }
