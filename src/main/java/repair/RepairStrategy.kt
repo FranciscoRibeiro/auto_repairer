@@ -22,22 +22,25 @@ abstract class RepairStrategy {
                     ConditionalOperatorReplacement(), ConditionalOperatorDeletion(),
                     ArithmeticOperatorReplacement(), ArithmeticOperatorDeletion(),
                     UnaryOperatorInsertion(), RemoveConditional(),
-                    BitshiftOperatorReplacement(), BitwiseOperatorReplacement()),
+                    BitshiftOperatorReplacement(), BitshiftOperatorDeletion(),
+                    BitwiseOperatorReplacement()),
             BooleanLiteralExpr::class.java to listOf(BooleanConstantModification()),
             IntegerLiteralExpr::class.java to listOf(IntConstantModification(), ConsToVarReplacement()),
             DoubleLiteralExpr::class.java to listOf(DoubleConstantModification()),
             NameExpr::class.java to listOf(VarToVarReplacement(), VarToConsReplacement(),
-                    UnaryOperatorInsertion(), ReferenceReplacementContent()),
+                    UnaryOperatorInsertion(), ReferenceReplacementContent(), Negation()),
             ExpressionStmt::class.java to listOf(StatementDeletion()),
             ReturnStmt::class.java to listOf(ReturnValue(), TrueReturn(), FalseReturn()),
             UnaryExpr::class.java to listOf(UnaryOperatorDeletion(), UnaryOperatorReplacement()),
             ObjectCreationExpr::class.java to listOf(ArgumentNumberChange()),
             MethodCallExpr::class.java to listOf(NonVoidMethodDeletion(), VoidMethodDeletion(),
                     AccessorMethodChange(), ArgumentNumberChange()),
-            FieldDeclaration::class.java to listOf(MemberVariableAssignmentDeletion(), StaticModifierDeletion(), StaticModifierInsertion()),
+            FieldDeclaration::class.java to listOf(MemberVariableAssignmentDeletion(), StaticModifierDeletion(),
+                    StaticModifierInsertion()),
             Modifier::class.java to listOf(AccessorModifierChange()),
             ObjectCreationExpr::class.java to listOf(ConstructorCallReplacementNull()),
-            FieldAccessExpr::class.java to listOf(ReferenceReplacementContent())
+            FieldAccessExpr::class.java to listOf(ReferenceReplacementContent(), Negation()),
+            ArrayAccessExpr::class.java to listOf(Negation())
     )
 
     abstract fun repair(program: BuggyProgram, basedOn: FaultLocalizationType): Sequence<AlternativeProgram>
