@@ -9,7 +9,7 @@ import repair.mutators.utils.isLeftSideAssign
 
 class Negation(): MutatorRepair<Expression>() {
     override val rank: Int
-        get() = 25
+        get() = 34
 
     override fun checkedRepair(program: BuggyProgram, expr: Expression): List<Expression> {
         if(isLeftSideAssign(expr)) return emptyList()

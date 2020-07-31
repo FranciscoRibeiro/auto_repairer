@@ -5,7 +5,7 @@ import com.github.javaparser.ast.expr.UnaryExpr
 
 class UnaryOperatorReplacement: MutatorRepair<UnaryExpr>() {
     override val rank: Int
-        get() = 17
+        get() = 15
 
     private val exclusions = listOf(UnaryExpr.Operator.LOGICAL_COMPLEMENT,
             UnaryExpr.Operator.BITWISE_COMPLEMENT,

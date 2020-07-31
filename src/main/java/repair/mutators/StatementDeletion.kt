@@ -12,7 +12,7 @@ import com.github.javaparser.ast.stmt.Statement
 
 class StatementDeletion: MutatorRepair<ExpressionStmt>() {
     override val rank: Int
-        get() = 6
+        get() = 4
 
     override fun checkedRepair(program: BuggyProgram, exprStmt: ExpressionStmt): List<ExpressionStmt> {
         return listOf(ExpressionStmt())

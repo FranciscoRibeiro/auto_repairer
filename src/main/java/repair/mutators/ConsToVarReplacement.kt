@@ -8,7 +8,7 @@ import repair.mutators.utils.*
 
 class ConsToVarReplacement: MutatorRepair<LiteralExpr>() {
     override val rank: Int
-        get() = 21
+        get() = 7
 
     override fun checkedRepair(program: BuggyProgram, litExpr: LiteralExpr): List<NameExpr> {
         val enclosing = getEnclosing(litExpr) ?: return emptyList()

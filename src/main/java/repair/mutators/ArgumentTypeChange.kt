@@ -6,7 +6,7 @@ import com.github.javaparser.ast.type.PrimitiveType
 
 class ArgumentTypeChange: MutatorRepair<Parameter>() {
     override val rank: Int
-        get() = 24
+        get() = 30
 
     override fun checkedRepair(program: BuggyProgram, param: Parameter): List<Parameter> {
         return when(param.type.asString()){

@@ -13,7 +13,7 @@ import repair.mutators.utils.isLeftSideAssign
 
 class UnaryOperatorInsertion(): MutatorRepair<Expression>() {
     override val rank: Int
-        get() = 25
+        get() = 23
 
     private val exclusions = listOf(UnaryExpr.Operator.LOGICAL_COMPLEMENT,
             UnaryExpr.Operator.BITWISE_COMPLEMENT,

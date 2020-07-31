@@ -10,7 +10,7 @@ import java.lang.Exception
 
 class VoidMethodDeletion: MutatorRepair<MethodCallExpr>() {
     override val rank: Int
-        get() = 13
+        get() = 11
 
     override fun checkedRepair(program: BuggyProgram, metCall: MethodCallExpr): List<Expression> {
         /*val retType: ResolvedType

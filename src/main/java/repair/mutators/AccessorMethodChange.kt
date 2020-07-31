@@ -10,7 +10,7 @@ import repair.mutators.utils.resolveDecl
 
 class AccessorMethodChange: MutatorRepair<MethodCallExpr>() {
     override val rank: Int
-        get() = 24
+        get() = 22
 
     override fun checkedRepair(program: BuggyProgram, metCall: MethodCallExpr): List<MethodCallExpr> {
         return if(hasAccessorPrefix(metCall.name)){

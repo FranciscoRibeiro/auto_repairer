@@ -11,7 +11,7 @@ import repair.mutators.utils.*
 
 class ArgumentNumberChange: MutatorRepair<Expression>() {
     override val rank: Int
-        get() = 24
+        get() = 31
 
     override fun checkedRepair(program: BuggyProgram, callExpr: Expression): List<Expression> {
         when (callExpr) {

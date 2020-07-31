@@ -6,7 +6,7 @@ import repair.mutators.utils.isConditional
 
 class ConditionalOperatorReplacement: MutatorRepair<BinaryExpr>() {
     override val rank: Int
-        get() = 12
+        get() = 10
 
     override fun checkedRepair(program: BuggyProgram, binExpr: BinaryExpr): List<BinaryExpr> {
         return if(isConditional(binExpr.operator)){

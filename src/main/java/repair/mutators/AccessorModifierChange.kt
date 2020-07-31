@@ -8,7 +8,7 @@ import repair.mutators.utils.getParent
 
 class AccessorModifierChange: MutatorRepair<Modifier>() {
     override val rank: Int
-        get() = 16
+        get() = 14
 
     override fun checkedRepair(program: BuggyProgram, mod: Modifier): List<Modifier> {
         val parent = getParent(mod) ?: return emptyList()

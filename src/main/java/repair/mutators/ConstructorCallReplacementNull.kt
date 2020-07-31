@@ -6,7 +6,7 @@ import com.github.javaparser.ast.expr.ObjectCreationExpr
 
 class ConstructorCallReplacementNull: MutatorRepair<ObjectCreationExpr>() {
     override val rank: Int
-        get() = 23
+        get() = 21
 
     override fun checkedRepair(program: BuggyProgram, checkedNode: ObjectCreationExpr): List<NullLiteralExpr> {
         return listOf(NullLiteralExpr())

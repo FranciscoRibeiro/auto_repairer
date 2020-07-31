@@ -6,7 +6,7 @@ import com.github.javaparser.ast.expr.UnaryExpr
 
 class UnaryOperatorDeletion: MutatorRepair<UnaryExpr>() {
     override val rank: Int
-        get() = 11
+        get() = 9
 
     override fun checkedRepair(program: BuggyProgram, unExpr: UnaryExpr): List<Expression> {
         return listOf(unExpr.expression.clone())

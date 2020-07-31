@@ -7,7 +7,7 @@ import repair.mutators.utils.isString
 
 class ArithmeticOperatorReplacement: MutatorRepair<BinaryExpr>() {
     override val rank: Int
-        get() = 14
+        get() = 12
 
     override fun checkedRepair(program: BuggyProgram, binExpr: BinaryExpr): List<BinaryExpr> {
         return if(isArithmetic(binExpr.operator)){

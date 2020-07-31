@@ -8,7 +8,7 @@ import repair.mutators.utils.calcType
 
 class ReturnValue: MutatorRepair<ReturnStmt>() {
     override val rank: Int
-        get() = 10
+        get() = 8
 
     override fun checkedRepair(program: BuggyProgram, ret: ReturnStmt): List<ReturnStmt> {
         val retExpr = ret.expression.orElse(null) ?: return emptyList()

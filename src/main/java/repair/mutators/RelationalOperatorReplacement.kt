@@ -6,7 +6,7 @@ import repair.mutators.utils.isRelational
 
 class RelationalOperatorReplacement(val op: BinaryExpr.Operator? = null): MutatorRepair<BinaryExpr>() {
     override val rank: Int
-        get() = 4
+        get() = 2
 
     override fun checkedRepair(program: BuggyProgram, binExpr: BinaryExpr): List<BinaryExpr> {
         return if(isRelational(binExpr.operator)){

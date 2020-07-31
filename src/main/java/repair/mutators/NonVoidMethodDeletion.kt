@@ -17,7 +17,7 @@ import java.lang.Exception
 
 class NonVoidMethodDeletion: MutatorRepair<MethodCallExpr>() {
     override val rank: Int
-        get() = 8
+        get() = 6
 
     override fun checkedRepair(program: BuggyProgram, metCall: MethodCallExpr): List<Expression> {
         /*val retType: ResolvedType

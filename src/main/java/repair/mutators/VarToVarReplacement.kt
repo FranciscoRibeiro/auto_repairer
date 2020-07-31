@@ -13,7 +13,7 @@ import repair.mutators.utils.*
 
 class VarToVarReplacement: MutatorRepair<NameExpr>() {
     override val rank: Int
-        get() = 5
+        get() = 3
 
     override fun checkedRepair(program: BuggyProgram, nameExpr: NameExpr): List<NameExpr> {
         val methodDecl = getEnclosing(nameExpr) ?: return emptyList()

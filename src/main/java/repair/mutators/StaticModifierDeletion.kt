@@ -7,7 +7,7 @@ import com.github.javaparser.ast.body.FieldDeclaration
 
 class StaticModifierDeletion: MutatorRepair<FieldDeclaration>() {
     override val rank: Int
-        get() = 25
+        get() = 29
 
     override fun checkedRepair(program: BuggyProgram, fieldDecl: FieldDeclaration): List<FieldDeclaration> {
         val mods = fieldDecl.modifiers

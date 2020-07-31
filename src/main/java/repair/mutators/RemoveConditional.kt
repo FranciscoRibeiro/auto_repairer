@@ -8,7 +8,7 @@ import repair.mutators.utils.getParent
 
 class RemoveConditional: MutatorRepair<BinaryExpr>() {
     override val rank: Int
-        get() = 18
+        get() = 16
 
     override fun checkedRepair(program: BuggyProgram, binExpr: BinaryExpr): List<BooleanLiteralExpr> {
         val parent = getParent(binExpr) ?: return emptyList()

@@ -5,7 +5,7 @@ import com.github.javaparser.ast.expr.DoubleLiteralExpr
 
 class DoubleConstantModification: MutatorRepair<DoubleLiteralExpr>() {
     override val rank: Int
-        get() = 2
+        get() = 1
 
     override fun checkedRepair(program: BuggyProgram, doubleLitExpr: DoubleLiteralExpr): List<DoubleLiteralExpr> {
         val value = doubleLitExpr.asDouble()

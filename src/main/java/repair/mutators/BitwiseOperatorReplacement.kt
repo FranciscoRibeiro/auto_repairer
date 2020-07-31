@@ -6,7 +6,7 @@ import repair.mutators.utils.isBitwise
 
 class BitwiseOperatorReplacement: MutatorRepair<BinaryExpr>() {
     override val rank: Int
-        get() = 14
+        get() = 32
 
     override fun checkedRepair(program: BuggyProgram, binExpr: BinaryExpr): List<BinaryExpr> {
         return if(isBitwise(binExpr.operator)){

@@ -7,7 +7,7 @@ import repair.mutators.utils.isBitshift
 
 class BitshiftOperatorDeletion: MutatorRepair<BinaryExpr>() {
     override val rank: Int
-        get() = 7
+        get() = 33
 
     override fun checkedRepair(program: BuggyProgram, binExpr: BinaryExpr): List<Expression> {
         return if(isBitshift(binExpr.operator)){

@@ -10,7 +10,7 @@ import repair.mutators.utils.getParent
 
 class ReferenceReplacementContent: MutatorRepair<Expression>() {
     override val rank: Int
-        get() = 26
+        get() = 25
 
     override fun checkedRepair(program: BuggyProgram, expr: Expression): List<MethodCallExpr> {
         if(!(expr is NameExpr || expr is FieldAccessExpr)) return emptyList()

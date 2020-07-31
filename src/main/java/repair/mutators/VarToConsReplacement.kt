@@ -10,7 +10,7 @@ import repair.mutators.utils.*
 
 class VarToConsReplacement: MutatorRepair<NameExpr>() {
     override val rank: Int
-        get() = 9
+        get() = 19
 
     override fun checkedRepair(program: BuggyProgram, nameExpr: NameExpr): List<LiteralStringValueExpr> {
         val parent = getParent(nameExpr)
