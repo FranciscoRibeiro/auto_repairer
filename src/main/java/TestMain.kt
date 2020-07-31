@@ -155,5 +155,7 @@ fun validateStrategyOption(strategy: String): String {
 }
 
 fun savePatch(patchDir: String, n: Int, fix: AlternativeProgram) {
+    val dir = File(patchDir)
+    if(!dir.exists()) dir.mkdirs()
     File("$patchDir/$n.java").writeText(fix.toString())
 }
