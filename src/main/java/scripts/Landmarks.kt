@@ -1,6 +1,7 @@
 package scripts
 
 import fault_localization.reports.qsfl.Landmark
+import fault_localization.reports.qsfl.Method
 import fault_localization.reports.qsfl.QSFLDiagnosis
 import fault_localization.reports.qsfl.Nodes
 import java.io.File
@@ -21,8 +22,12 @@ fun main(args: Array<String>) {
 fun extractMostLikelyLandmarks(qsflTriple: Triple<File, QSFLDiagnosis, Nodes>): Pair<String, List<String>> {
     val y = Pair(qsflTriple.first.name.replace("_", "/"),
                 qsflTriple.second.mostLikelyFaulty(1).toList().map { it.toList() }.flatten()
-                        .filter { qsflTriple.third[it] is Landmark }
+                        .filter { qsflTriple.third[it] is Landmark && parentIsMethod(qsflTriple.third, qsflTriple.third[it] as Landmark)}
                         //.map { "$it ${qsflTriple.second.faultyNodes[it]} LANDMARK" })
                         .map { lid -> "$lid ${qsflTriple.second.faultyNodes.mapNotNull { it[lid] }}" })
     return y
+}
+
+fun parentIsMethod(nodes: Nodes, landmark: Landmark): Boolean {
+    return nodes[landmark.parentId] is Method
 }
