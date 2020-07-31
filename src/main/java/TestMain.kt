@@ -39,7 +39,7 @@ private fun passTests(projDir: String): Boolean {
     return runCmd("mvn test", projDir) == 0
 }
 
-private fun setupFix(projDir: String, fileName: String, fix: AlternativeProgram): AlternativeProgram{
+private fun setupPatch(projDir: String, fileName: String, fix: AlternativeProgram): AlternativeProgram{
     println("Fix: ${fix.insertedMutant}")
     File("$projDir/src/main/java/$fileName.java").writeText(fix.toString())
     return fix
@@ -122,9 +122,8 @@ fun main(args: Array<String>) {
 //        alternativesStrict.forEach { File("tmp_br/${++counter}.java").writeText(it.toString()) }
     } else { /* stop when a mutant fixes the program */
         val fix = alternatives
-//                .forEach { File("tmp_lsr/${++counter}.java").writeText(it.toString()) }
-                .map { setupFix("${args[0]}/$fileName", fileName, it) }
-                .map { saveFix("${args[0]}/$fileName/patches/$strategyDir/${mutantIdentifier.replace("/","_")}", ++counter, it) }
+                .map { setupPatch("${args[0]}/$fileName", fileName, it) }
+                .map { savePatch("${args[0]}/$fileName/patches/$strategyDir/${mutantIdentifier.replace("/","_")}", ++counter, it) }
                 .find { passTests("${args[0]}/$fileName") }
 
         if(fix == null) exitProcess(1)
@@ -155,6 +154,6 @@ fun validateStrategyOption(strategy: String): String {
     }
 }
 
-fun saveFix(patchDir: String, n: Int, fix: AlternativeProgram) {
+fun savePatch(patchDir: String, n: Int, fix: AlternativeProgram) {
     File("$patchDir/$n.java").writeText(fix.toString())
 }
