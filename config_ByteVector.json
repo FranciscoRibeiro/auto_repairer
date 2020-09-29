@@ -1,7 +1,0 @@
-{
-  "projPath": "/home/kiko/PhD/CodeDefenders_projs/ByteVector",
-  "fileName": "ByteVector",
-  "fullClassName": "ByteVector",
-  "testName": "TestByteVector",
-  "mutantBugsFileName": "landmark_diagnosis_presence/ByteVector_muts.txt"
-}

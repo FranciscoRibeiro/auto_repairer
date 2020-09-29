@@ -1,7 +1,0 @@
-{
-  "projPath": "/home/kiko/PhD/CodeDefenders_projs/ByteArrayHashMap",
-  "fileName": "ByteArrayHashMap",
-  "fullClassName": "ByteArrayHashMap",
-  "testName": "TestByteArrayHashMap",
-  "mutantBugsFileName": "landmark_diagnosis_presence/ByteArrayHashMap_muts.txt"
-}
