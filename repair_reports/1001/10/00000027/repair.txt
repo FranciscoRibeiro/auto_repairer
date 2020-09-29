@@ -1,1 +1,0 @@
-Mutant ByteArrayHashMap_1.java repairs the bug

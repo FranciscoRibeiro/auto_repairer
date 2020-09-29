@@ -1,6 +1,0 @@
-Mutant ByteArrayHashMap_2.java repairs the bug
-Mutant ByteArrayHashMap_8.java is invalid
-Mutant ByteArrayHashMap_10.java is invalid
-Mutant ByteArrayHashMap_7.java is invalid
-Mutant ByteArrayHashMap_6.java is invalid
-Mutant ByteArrayHashMap_9.java is invalid

@@ -1,6 +1,0 @@
-Mutant HSLColor_135.java repairs the bug
-Mutant HSLColor_119.java repairs the bug
-Mutant HSLColor_120.java repairs the bug
-Mutant HSLColor_151.java repairs the bug
-Mutant HSLColor_152.java repairs the bug
-Mutant HSLColor_136.java repairs the bug
