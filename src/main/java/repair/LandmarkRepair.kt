@@ -17,7 +17,7 @@ import java.lang.NumberFormatException
 class LandmarkRepair: RepairStrategy() {
     override fun repair(program: BuggyProgram, basedOn: FaultLocalizationType): Sequence<AlternativeProgram> {
         return program.mostLikelyFaulty(basedOn, 5)
-                        .map { it.map { program.nodeInfo(it) } }
+//                        .map { it.map { program.nodeInfo(it) } }
                         .map { it.filterIsInstance<Landmark>() }
                         .map { it.map { it.fullRelation to program.findNodes(it) } }
                         .flatMap { it.map { apart(it) } }

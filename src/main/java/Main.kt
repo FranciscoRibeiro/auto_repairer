@@ -1,3 +1,9 @@
+import fault_localization.FaultLocalizationType
+import fault_localization.reports.qsfl.QSFLReport
+import fault_localization.reports.sfl.SFLReport
+import repair.*
+import kotlin.system.exitProcess
+
 //import com.github.javaparser.ast.CompilationUnit
 //import fault_localization.reports.qsfl.Landmark
 //import fault_localization.reports.qsfl.Parameter
@@ -142,3 +148,44 @@
 //        val testName = "TestByteArrayHashMap"*//*
 //    }*/
 //}
+
+fun errorOut(msg: String){
+    println(msg)
+    exitProcess(1)
+}
+
+fun getRepairStrategy(strategy: String): RepairStrategy? {
+    return when(strategy){
+        "-br" -> BruteForceRankingRepair()
+        "-ba" -> BruteForceAdHocRepair()
+        "-bn" -> BruteForceRankingNoSuspectRepair()
+        "-l" -> LandmarkRepair()
+        "-lr" -> LandmarkRankingRepair()
+        "-lsr" -> LandmarkStrictRankingRepair()
+        "-la" -> LandmarkAdHocRepair()
+        "-lsa" -> LandmarkStrictAdHocRepair()
+        "-ll" -> LandmarkLinesRepair()
+        else -> null
+    }
+}
+
+fun getFLType(strategy: String): FaultLocalizationType? {
+    return when(strategy){
+        "-br", "-ba", "-bn" -> FaultLocalizationType.SFL
+        "-l", "-lr", "-lsr", "-la", "-lsa", "-ll" -> FaultLocalizationType.QSFL
+        else -> null
+    }
+}
+
+fun main(args: Array<String>) {
+    if(args.size != 3) errorOut("Incorrect Usage")
+
+    val (srcPath, strategy, reportPath) = Triple(args[0], args[1], args[2])
+    val repairStrategy = getRepairStrategy(strategy) ?: errorOut("Invalid strategy: $strategy")
+    val flType = getFLType(strategy)
+    val report = when(flType){
+        FaultLocalizationType.SFL -> SFLReport(reportPath)
+        else -> SFLReport(reportPath)
+    }
+    println("end")
+}

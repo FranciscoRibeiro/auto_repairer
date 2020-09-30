@@ -93,9 +93,11 @@ fun main(args: Array<String>) {
 //    val cu = StaticJavaParser.parse(File("src/main/java/TestFile.java"))
 
     /* parse program */
-    val buggyProgram = BuggyProgram(
+    /*val buggyProgram = BuggyProgram(
             "${args[0]}/$fileName/fl_reports/${mutantIdentifier.replace("/", "_")}",
-            mutantFile)
+            mutantFile)*/
+    val buggyProgram = BuggyProgram(
+            "${args[0]}/$fileName/fl_reports/${mutantIdentifier.replace("/", "_")}")
 
     /* lazy creation of potential fixes based on landmarks */
     val landmarkAlternatives =

@@ -4,15 +4,17 @@ import AlternativeProgram
 import BuggyProgram
 import com.github.javaparser.ast.Node
 import fault_localization.FaultLocalizationType
+import fault_localization.reports.sfl.SFLComponent
 import repair.mutators.MutatorRepair
 
 class BruteForceRankingRepair: RepairStrategy() {
     override fun repair(program: BuggyProgram, basedOn: FaultLocalizationType): Sequence<AlternativeProgram> {
         val alts = program.mostLikelyFaulty(basedOn, 5)
-                        .map { it.map { it to program.nodesInLine(it) } }
-//                      .map { createMutants(program, it.second) }
-                        .map { createMutants(program, it.flatMap { it.second }) }
-                        .flatMap { modifyComponent(program, it) }
+                .map { comps -> comps.filterIsInstance<SFLComponent>() }
+                .map { comps -> comps.map { it.line }}
+                .map { lines -> lines.map { it to program.nodesInLine(it) } }
+                .map { createMutants(program, it.flatMap { it.second }) }
+                .flatMap { modifyComponent(program, it) }
 
         return alts
     }

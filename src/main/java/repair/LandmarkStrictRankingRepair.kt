@@ -17,7 +17,7 @@ import repair.mutators.utils.isRelational
 class LandmarkStrictRankingRepair: RepairStrategy() {
     override fun repair(program: BuggyProgram, basedOn: FaultLocalizationType): Sequence<AlternativeProgram> {
         val alts = program.mostLikelyFaulty(basedOn, 5)
-                        .map { it.map { program.nodeInfo(it) } }
+//                        .map { it.map { program.nodeInfo(it) } }
                         .map { it.filterIsInstance<Landmark>() }
                         .map { it.map { program.findNodes(it) } } //Only select the nodes that are "strictly coupled" to landmark variables
 //                        .map { it.map { program.findNodesIndirectly(it) } }

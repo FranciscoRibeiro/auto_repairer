@@ -8,6 +8,7 @@ import com.github.javaparser.ast.expr.Expression
 import com.github.javaparser.ast.expr.IntegerLiteralExpr
 import fault_localization.FaultLocalizationType
 import fault_localization.reports.qsfl.Landmark
+import fault_localization.reports.qsfl.QSFLNode
 import repair.mutators.ConditionalOperatorInsertion
 import repair.mutators.IntConstantModification
 import repair.mutators.MutatorRepair
@@ -17,7 +18,7 @@ import repair.mutators.utils.isRelational
 class LandmarkAdHocRepair: RepairStrategy() {
     override fun repair(program: BuggyProgram, basedOn: FaultLocalizationType): Sequence<AlternativeProgram> {
         val alts = program.mostLikelyFaulty(basedOn, 5)
-                        .map { it.map { program.nodeInfo(it) } }
+//                        .map { it.map { program.nodeInfo(it) } }
                         .map { it.filterIsInstance<Landmark>() }
                         .map { it.map { program.findNodesIndirectly(it) } }
                         .map { it.flatten() }

@@ -4,14 +4,17 @@ import AlternativeProgram
 import BuggyProgram
 import com.github.javaparser.ast.Node
 import fault_localization.FaultLocalizationType
+import fault_localization.reports.sfl.SFLComponent
 import repair.mutators.MutatorRepair
 import java.util.*
 
 class BruteForceRankingNoSuspectRepair: RepairStrategy() {
     override fun repair(program: BuggyProgram, basedOn: FaultLocalizationType): Sequence<AlternativeProgram> {
         val nodes = program.mostLikelyFaulty(basedOn, 5) // List of lists: the outer list ranks lines by prob and each inner list has all the line numbers for that spot in the ranking
-                        .flatten() // This strategy ignores the probability, so we flatten into a list of numbers
-                        .flatMap { program.nodesInLine(it) } // List of all nodes
+                .flatten() // This strategy ignores the probability, so we flatten into a list of numbers
+                .filterIsInstance<SFLComponent>()
+                .map { it.line }
+                .flatMap { program.nodesInLine(it) } // List of all nodes
 //                        .map { it.map { it to program.nodesInLine(it) } } // List of lists: each inner list now holds pairs of (line_nr, [node]). The snd element are the nodes in that line
 //                        .flatten()
 //                        .flatMap { it.second }

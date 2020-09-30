@@ -9,17 +9,18 @@ import fault_localization.FaultLocalizationType
 import fault_localization.reports.qsfl.Landmark
 import fault_localization.reports.qsfl.Line
 import fault_localization.reports.qsfl.Parameter
+import fault_localization.reports.qsfl.QSFLNode
 import repair.mutators.MutatorRepair
 
 class LandmarkLinesRepair: RepairStrategy() {
     override fun repair(program: BuggyProgram, basedOn: FaultLocalizationType): Sequence<AlternativeProgram> {
         val landmarks = program.mostLikelyFaulty(basedOn, 5)
-                                .map { it.map { program.nodeInfo(it) } }
+//                                .map { it.map { program.nodeInfo(it) } }
                                 .map { it.filterIsInstance<Landmark>() }
                                 //.flatten()
 
         val lines = program.mostLikelyFaulty(basedOn, 5)
-                            .map { it.map { program.nodeInfo(it) } }
+//                            .map { it.map { program.nodeInfo(it) } }
                             .map { it.filterIsInstance<Line>() }
                             .map { it.map { it.line } }
 

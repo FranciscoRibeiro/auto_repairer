@@ -10,7 +10,7 @@ import repair.mutators.MutatorRepair
 class LandmarkRankingRepair: RepairStrategy() {
     override fun repair(program: BuggyProgram, basedOn: FaultLocalizationType): Sequence<AlternativeProgram> {
         val alts = program.mostLikelyFaulty(basedOn, 5)
-                        .map { it.map { program.nodeInfo(it) } }
+//                        .map { it.map { program.nodeInfo(it) } }
                         .map { it.filterIsInstance<Landmark>() }
                         .map { it.map { program.findNodesIndirectly(it) } } //Select all the nodes in lines where landmark variables are present, even if they are not directly associated
                         .map { it.flatten() }

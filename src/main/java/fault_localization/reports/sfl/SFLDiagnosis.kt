@@ -1,4 +1,4 @@
-package fault_localization.reports
+package fault_localization.reports.sfl
 
 import java.io.File
 
@@ -8,7 +8,8 @@ import java.io.File
 //}
 
 class SFLDiagnosis {
-    var faultyLines: List<Map<Int, ComponentInfo>>
+//    var faultyLines: List<Map<Int, SFLComponent>>
+    var faultyLines: List<Map<SFLComponent, Double>>
     var similarityCoefficient: String
 
     constructor(diagnosisFile: File, similarityCoefficient: String = "ochiai") {
@@ -16,22 +17,23 @@ class SFLDiagnosis {
         this.similarityCoefficient = similarityCoefficient
     }
 
-    private fun parseLines(csvLines: Sequence<String>): List<Map<Int, ComponentInfo>> {
+    private fun parseLines(csvLines: Sequence<String>): List<Map<SFLComponent, Double>> {
         return csvLines.drop(1) //ignore CSV header
                 .map { getLineAndComponentInfo(it) }
-                .groupBy { it.second.probability }
+                .groupBy { it.second }
                 .map { it.value.toMap() }
 //               .forEach { this[it.first] = it.second }
     }
 
-    private fun getLineAndComponentInfo(line: String): Pair<Int, ComponentInfo> {
+    private fun getLineAndComponentInfo(line: String): Pair<SFLComponent, Double> {
         val (compInfo, prob) = line.split(";")
         val (classAndMethod, line) = compInfo.split(":")
-        val (className, methodSignature) = classAndMethod.split("#")
-        return Pair(line.toInt(), ComponentInfo(className.drop(1), methodSignature, prob.toDouble()))
+        val (fullClassName, methodSignature) = classAndMethod.split("#")
+        val (packageName, simpleClassName) = fullClassName.split("$")
+        return Pair(SFLComponent(packageName, simpleClassName, methodSignature, line.toInt()), prob.toDouble())
     }
 
-    fun mostLikelyFaulty(upTo: Int): Sequence<Sequence<Int>> {
+    fun mostLikelyFaulty(upTo: Int): Sequence<Sequence<SFLComponent>> {
         return this.faultyLines.asSequence()
                                 .take(upTo)
                                 .map { it.asSequence().map { it.key } }

@@ -3,33 +3,35 @@ import com.github.javaparser.ast.CompilationUnit
 import com.github.javaparser.ast.Node
 import com.github.javaparser.ast.body.CallableDeclaration
 import com.github.javaparser.ast.expr.NameExpr
-import com.github.javaparser.printer.lexicalpreservation.LexicalPreservingPrinter.setup
 import com.github.javaparser.symbolsolver.JavaSymbolSolver
 import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSolver
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver
 import fault_localization.FaultLocalizationType
-import fault_localization.FaultLocalizationType.QSFL
-import fault_localization.FaultLocalizationType.SFL
-import fault_localization.reports.SFLReport
+import fault_localization.reports.FLComponent
+import fault_localization.reports.FLReport
 import fault_localization.reports.qsfl.*
-import java.io.File
 
-class BuggyProgram(val path: String, val sourceFile: File) {
-    val sflReport = SFLReport(File(path, "site/gzoltar/sfl"))
-    val qsflReport = QSFLReport(File(path, "qsfl"))
+class BuggyProgram(val srcPath: String) {
+    lateinit var flReport: FLReport
     val tree = parseAndSolve()
     private val originalTree = ImmutableTree(tree.clone())
 
-    private fun parseAndSolve(): CompilationUnit {
-        StaticJavaParser.getConfiguration().setSymbolResolver(JavaSymbolSolver(CombinedTypeSolver(ReflectionTypeSolver())))
-        return /*setup(*/StaticJavaParser.parse(sourceFile)/*)*/
+    constructor(srcPath: String, flReport: FLReport): this(srcPath){
+        this.flReport = flReport
     }
 
-    fun mostLikelyFaulty(basedOn: FaultLocalizationType, upTo: Int = 1): Sequence<Sequence<Int>> {
-        return when(basedOn){
+    private fun parseAndSolve(): CompilationUnit {
+        StaticJavaParser.getConfiguration().setSymbolResolver(JavaSymbolSolver(CombinedTypeSolver(ReflectionTypeSolver())))
+//        return /*setup(*/StaticJavaParser.parse(sourceFile)/*)*/
+        return /*setup(*/StaticJavaParser.parse(srcPath)/*)*/
+    }
+
+    fun mostLikelyFaulty(basedOn: FaultLocalizationType, upTo: Int = 1): Sequence<Sequence<FLComponent>> {
+        return flReport.mostLikelyFaulty(upTo)
+        /*return when(basedOn){
             SFL -> sflReport.mostLikelyFaulty(upTo)
             QSFL -> qsflReport.mostLikelyFaulty(upTo)
-        }
+        }*/
     }
 
     fun nodesInLine(line: Int): Sequence<Node> {
@@ -58,11 +60,13 @@ class BuggyProgram(val path: String, val sourceFile: File) {
         return originalTree.getTree()
     }
 
-    fun nodeInfo(nodeId: Int): NodeInfo? {
+    fun nodeInfo(nodeId: Int): QSFLNode? {
+        val qsflReport = flReport as? QSFLReport ?: return null
         return qsflReport.nodeInfo(nodeId)
     }
 
     fun findNodes(landmark: Landmark): Sequence<Node> {
+        val qsflReport = flReport as? QSFLReport ?: return emptySequence()
         var associated: List<Node> = emptyList()
         val paramNode = qsflReport.nodeInfo(landmark.parentId)
         if(paramNode != null && paramNode is Parameter){
