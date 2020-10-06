@@ -1,7 +1,9 @@
 import fault_localization.FaultLocalizationType
-import fault_localization.reports.qsfl.QSFLReport
+import fault_localization.reports.FLReport
 import fault_localization.reports.sfl.SFLReport
 import repair.*
+import java.io.File
+import java.time.LocalDateTime
 import kotlin.system.exitProcess
 
 //import com.github.javaparser.ast.CompilationUnit
@@ -149,7 +151,7 @@ import kotlin.system.exitProcess
 //    }*/
 //}
 
-fun errorOut(msg: String){
+fun errorOut(msg: String): Nothing {
     println(msg)
     exitProcess(1)
 }
@@ -177,15 +179,66 @@ fun getFLType(strategy: String): FaultLocalizationType? {
     }
 }
 
+private fun loadReport(flType: FaultLocalizationType, reportPath: String): FLReport {
+    return when (flType) {
+        FaultLocalizationType.SFL -> SFLReport(reportPath)
+        else -> SFLReport(reportPath)
+    }
+}
+
+private fun setupPatch(srcPath: String, alternative: AlternativeProgram): AlternativeProgram {
+    File(srcPath, alternative.fullName().replace(".", "/") + ".java").writeText(alternative.toString())
+    return alternative
+}
+
+private fun savePatch(alternative: AlternativeProgram, counter: Int) {
+    val patchDir = File("generated_patches", LocalDateTime.now().toString())
+    patchDir.mkdirs()
+    File(patchDir, "$counter.java").writeText(alternative.toString())
+}
+
+fun run(cmd: String,
+           dir: String = System.getProperty("user.dir"),
+           out: File? = null): Int {
+    println(cmd)
+    var pb = ProcessBuilder()
+            .directory(File(dir))
+            .command(cmd.split(" "))
+            .redirectInput(ProcessBuilder.Redirect.INHERIT)
+            .redirectError(ProcessBuilder.Redirect.INHERIT)
+    if(out == null){
+        pb.redirectOutput(ProcessBuilder.Redirect.INHERIT)
+    } else {
+        out.appendText(cmd + "\n")
+        pb.redirectOutput(ProcessBuilder.Redirect.appendTo(out))
+    }
+
+    return pb.start().waitFor()
+}
+
+private fun test(projDir: String): Boolean {
+    println("Testing...")
+    return run("mvn test", projDir) == 0
+}
+
+private fun resetFiles(program: BuggyProgram) {
+    program.resetFiles()
+}
+
 fun main(args: Array<String>) {
     if(args.size != 3) errorOut("Incorrect Usage")
 
     val (srcPath, strategy, reportPath) = Triple(args[0], args[1], args[2])
     val repairStrategy = getRepairStrategy(strategy) ?: errorOut("Invalid strategy: $strategy")
-    val flType = getFLType(strategy)
-    val report = when(flType){
-        FaultLocalizationType.SFL -> SFLReport(reportPath)
-        else -> SFLReport(reportPath)
-    }
+    val flType = getFLType(strategy) ?: errorOut("Invalid FL type")
+    val report = loadReport(flType, reportPath)
+    val program = BuggyProgram(srcPath, report)
+    var counter = 0
+    repairStrategy.repair(program, flType)
+            .map { resetFiles(program); it }
+            .map { setupPatch(srcPath, it) }
+            .map { savePatch(it, ++counter) }
+            .find { test(srcPath.removeSuffix("/src/main/java")) }
+
     println("end")
 }

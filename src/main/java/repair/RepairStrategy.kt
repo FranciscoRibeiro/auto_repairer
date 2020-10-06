@@ -10,8 +10,8 @@ import com.github.javaparser.ast.body.Parameter
 import com.github.javaparser.ast.expr.*
 import com.github.javaparser.ast.stmt.ExpressionStmt
 import com.github.javaparser.ast.stmt.ReturnStmt
-import com.github.javaparser.printer.lexicalpreservation.LexicalPreservingPrinter.setup
 import fault_localization.FaultLocalizationType
+import fault_localization.reports.FLComponent
 import printError
 import repair.mutators.*
 import java.lang.IllegalArgumentException
@@ -60,6 +60,14 @@ abstract class RepairStrategy {
 
     fun modifyComponent(program: BuggyProgram, modifications: Sequence<Pair<Node, List<Node>>>): Sequence<AlternativeProgram> {
         return modifications.flatMap { buildAlternatives(program, it.first, it.second) }
+    }
+
+    fun modifyComponent2(program: BuggyProgram, modifications: Sequence<Pair<FLComponent, Sequence<Pair<Node, List<Node>>>>>): Sequence<AlternativeProgram> {
+        return modifications.flatMap {
+            (comp, nodesAndMutants) ->
+                program.setAST(comp)
+                modifyComponent(program, nodesAndMutants).map { it.setComponent(comp) }
+        }
     }
 
     private fun buildAlternatives(buggyProgram: BuggyProgram, originalNode: Node, mutantNodes: List<Node>): Sequence<AlternativeProgram> {
