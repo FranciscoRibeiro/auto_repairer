@@ -130,8 +130,4 @@ class LandmarkLinesRepair: RepairStrategy() {
             return Pair(tokens[0], tokens[1])
         }
     }
-
-    private fun <A, B> apart(pair: Pair<A,Sequence<B>> ): Sequence<Pair<A,B>> {
-        return pair.second.map { pair.first to it }
-    }
 }

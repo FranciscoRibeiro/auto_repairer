@@ -11,25 +11,30 @@ class BruteForceRankingRepair: RepairStrategy() {
     override fun repair(program: BuggyProgram, basedOn: FaultLocalizationType): Sequence<AlternativeProgram> {
         val alts = program.mostLikelyFaulty(basedOn, 5)
                 .map { comps -> comps.filterIsInstance<SFLComponent>() }
-                .map { comps -> comps.map { it.line }}
                 .map { lines -> lines.map { it to program.nodesInLine(it) } }
-                .map { createMutants(program, it.flatMap { it.second }) }
-                .flatMap { modifyComponent(program, it) }
+                .map { createMutants(program, it) }
+                .flatMap { modifyComponent2(program, it) }
 
         return alts
     }
 
-    private fun createMutants(program: BuggyProgram, nodes: Sequence<Node>): Sequence<Pair<Node, List<Node>>> {
-        return nodes.flatMap { pairWithMutOp(it) }//.asSequence()
-                    .sortedBy { it.second.rank }
-                    .map { it.first to mutate(program, it.second, it.first) }
-                    .filter { it.second.isNotEmpty() }
+    private fun createMutants(program: BuggyProgram,
+                              compsAndNodes: Sequence<Pair<SFLComponent, Sequence<Node>>>)
+            : Sequence<Pair<SFLComponent, Sequence<Pair<Node, List<Node>>>>> {
+        return compsAndNodes
+                .map { (line, nodes) -> line to nodes.flatMap { pairWithMutOp(it) } }
+                .flatMap { apart(it) }
+                .sortedBy { (_, nodeMutOp) -> nodeMutOp.second.rank }
+                .map {
+                    (line, nodeMutOp) ->
+                    line to (nodeMutOp.first to mutate(program, nodeMutOp.second, nodeMutOp.first))
+                }
+                .groupPairs()
+                .map {
+                    (line, nodesAndMutants) ->
+                    line to nodesAndMutants.filter { (_, mutants) -> mutants.isNotEmpty() }
+                }
     }
-
-//    private fun pairWithMutOp(node: Node): Sequence<Pair<Node, MutatorRepair<*>>> {
-//        val mutOps = mutators[node.javaClass] ?: return emptySequence()
-//        return mutOps.asSequence().map { node to it }
-//    }
 
     private fun mutate(program: BuggyProgram, mutOp: MutatorRepair<*>, node: Node): List<Node> {
         return mutOp.repair(program, node)

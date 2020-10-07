@@ -111,6 +111,14 @@ abstract class RepairStrategy {
     internal fun <T> Sequence<T>.mix(): Sequence<T> {
         return this.asIterable().shuffled(Random(1573)).asSequence()
     }
+
+    internal fun <A, B> apart(pair: Pair<A,Sequence<B>> ): Sequence<Pair<A,B>> {
+        return pair.second.map { pair.first to it }
+    }
+
+    internal fun <A, B> Sequence<Pair<A,B>>.groupPairs(): Sequence<Pair<A,Sequence<B>>> {
+        return this.groupBy({ it.first }, { it.second }).asSequence().map { it.key to it.value.asSequence() }
+    }
 }
 
 internal fun <T> Sequence<Sequence<T>>.removeDups(): Sequence<Sequence<T>> {
