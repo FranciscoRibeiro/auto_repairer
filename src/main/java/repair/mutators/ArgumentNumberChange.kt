@@ -5,7 +5,10 @@ import com.github.javaparser.ast.NodeList
 import com.github.javaparser.ast.expr.Expression
 import com.github.javaparser.ast.expr.MethodCallExpr
 import com.github.javaparser.ast.expr.ObjectCreationExpr
+import com.github.javaparser.ast.type.ReferenceType
+import com.github.javaparser.resolution.types.ResolvedReferenceType
 import com.github.javaparser.resolution.types.ResolvedType
+import com.github.javaparser.resolution.types.ResolvedTypeVariable
 import repair.has
 import repair.mutators.utils.*
 
@@ -75,7 +78,8 @@ class ArgumentNumberChange: MutatorRepair<Expression>() {
     }
 
     private fun paramTypeMatches(paramsAndTypes: List<Pair<Expression, ResolvedType>>, type: ResolvedType): List<Pair<Expression, ResolvedType>> {
-        val matches = paramsAndTypes.filter { it.second == type }
+        val matches = paramsAndTypes.filter { it.second == type
+                || (type is ResolvedTypeVariable && it.second is ResolvedReferenceType) } // Type reference should fit a type variable
         return if(matches.isEmpty()) listOf(defaultValue(type) to type)
         else matches
     }
