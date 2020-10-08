@@ -5,8 +5,11 @@ import com.github.javaparser.ast.Node
 import com.github.javaparser.ast.body.CallableDeclaration
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration
 import com.github.javaparser.ast.expr.NameExpr
+import com.github.javaparser.resolution.UnsolvedSymbolException
 import com.github.javaparser.symbolsolver.JavaSymbolSolver
+import com.github.javaparser.symbolsolver.model.typesystem.ReferenceTypeImpl
 import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSolver
+import com.github.javaparser.symbolsolver.resolution.typesolvers.JarTypeSolver
 import com.github.javaparser.symbolsolver.resolution.typesolvers.JavaParserTypeSolver
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver
 import com.github.javaparser.utils.SourceRoot
@@ -15,6 +18,8 @@ import fault_localization.reports.FLComponent
 import fault_localization.reports.FLReport
 import fault_localization.reports.qsfl.*
 import fault_localization.reports.sfl.SFLComponent
+import repair.mutators.utils.resolveDecl
+import java.io.File
 import java.nio.file.Paths
 
 class BuggyProgram(val srcPath: String) {
@@ -28,9 +33,18 @@ class BuggyProgram(val srcPath: String) {
         this.flReport = flReport
     }
 
+    private fun dependencyJars(): List<String> {
+        val dependencyDir = System.getProperty("user.home") + "/.m2/repository"
+        return System.getProperty("java.class.path")
+                .split(File.pathSeparator)
+                .filter { it.endsWith(".jar") && it.startsWith(dependencyDir) }
+    }
+
     private fun parseAndSolve(): List<CompilationUnit> {
+        val jars = dependencyJars()
         val sources = Paths.get(srcPath)
         val combinedTypeSolver = CombinedTypeSolver(ReflectionTypeSolver(), JavaParserTypeSolver(srcPath))
+        jars.forEach { combinedTypeSolver.add(JarTypeSolver(it)) }
         val config = ParserConfiguration()
                 .setStoreTokens(true)
                 .setSymbolResolver(JavaSymbolSolver(combinedTypeSolver))
@@ -80,11 +94,25 @@ class BuggyProgram(val srcPath: String) {
         else null
     }
 
-    fun setAST(component: FLComponent) {
-        when(component) {
-            is SFLComponent -> currentTree = getFileAST(component.simpleClassName) ?: return
-            else -> return
+    private fun getClassName(qsflNode: QSFLNode): String? {
+        return if(qsflNode is Class) qsflNode.name
+        else {
+            val parentNode = nodeInfo(qsflNode.parentId) ?: return null
+            getClassName(parentNode)
         }
+    }
+
+    /* Returns null if it fails to set the new AST.
+    *  If successful, it returns the newly set AST.
+    *  When using this function, if one is not sure the AST can be correctly set, the output should be checked */
+    fun setAST(component: FLComponent): CompilationUnit? {
+        val className = when(component) {
+            is SFLComponent -> component.simpleClassName
+            is QSFLNode -> getClassName(component)
+            else -> return null
+        } ?: return null
+        currentTree = getFileAST(className) ?: return null
+        return currentTree
     }
 
     fun nodesBeginInLine(line: Int): Sequence<Node> {
@@ -116,6 +144,7 @@ class BuggyProgram(val srcPath: String) {
     }
 
     fun findNodes(landmark: Landmark): Sequence<Node> {
+        setAST(landmark) ?: return emptySequence()
         val qsflReport = flReport as? QSFLReport ?: return emptySequence()
         var associated: List<Node> = emptyList()
         val paramNode = qsflReport.nodeInfo(landmark.parentId)
@@ -164,10 +193,24 @@ class BuggyProgram(val srcPath: String) {
         return if(n.range.isPresent) n.range.get().begin.line else 0
     }
 
+
+
     private fun hasNameAndParams(decl: CallableDeclaration<*>, methodNode: Method): Boolean {
         return decl.name.asString() == methodNode.name
                 && decl.parameters.size == methodNode.params.size
-                && methodNode.params.zip(decl.parameters).all { it.first == it.second.typeAsString }
+                && methodNode.params.zip(decl.parameters)
+                        .all { it.first == it.second.typeAsString
+                                || it.first == fullName(it.second)
+                        }
+    }
+
+    private fun fullName(param: com.github.javaparser.ast.body.Parameter): String {
+        val type = resolveDecl(param) ?: return ""
+        return try {
+            type.describeType()
+        } catch (e: UnsolvedSymbolException){
+            ""
+        }
     }
 
     fun resetFiles() {

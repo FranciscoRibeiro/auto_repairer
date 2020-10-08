@@ -1,6 +1,6 @@
 package fault_localization.reports.qsfl
 
-class Method(signature: String, val parentId: Int): QSFLNode() {
+class Method(signature: String, override val parentId: Int): QSFLNode() {
     val name: String
     val params: List<String>
 

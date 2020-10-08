@@ -1,5 +1,6 @@
 import fault_localization.FaultLocalizationType
 import fault_localization.reports.FLReport
+import fault_localization.reports.qsfl.QSFLReport
 import fault_localization.reports.sfl.SFLReport
 import repair.*
 import java.io.File
@@ -182,7 +183,7 @@ fun getFLType(strategy: String): FaultLocalizationType? {
 private fun loadReport(flType: FaultLocalizationType, reportPath: String): FLReport {
     return when (flType) {
         FaultLocalizationType.SFL -> SFLReport(reportPath)
-        else -> SFLReport(reportPath)
+        FaultLocalizationType.QSFL -> QSFLReport(reportPath)
     }
 }
 
@@ -238,7 +239,7 @@ fun main(args: Array<String>) {
             .map { resetFiles(program); it }
             .map { setupPatch(srcPath, it) }
             .map { savePatch(it, ++counter) }
-            .find { test(srcPath.removeSuffix("/src/main/java")) }
+            .find { test(srcPath.removeSuffix("/src")) }
 
     println("end")
 }

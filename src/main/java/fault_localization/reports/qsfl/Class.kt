@@ -1,3 +1,3 @@
 package fault_localization.reports.qsfl
 
-class Class(name: String): QSFLNode()
+class Class(val name: String, override val parentId: Int): QSFLNode()

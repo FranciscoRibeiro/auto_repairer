@@ -1,3 +1,3 @@
 package fault_localization.reports.qsfl
 
-class Undefined: QSFLNode()
+class Undefined(override val parentId: Int) : QSFLNode()

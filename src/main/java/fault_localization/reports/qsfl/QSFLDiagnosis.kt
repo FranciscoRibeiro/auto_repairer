@@ -30,6 +30,7 @@ class QSFLDiagnosis {
     fun mostLikelyFaulty(upTo: Int): Sequence<Sequence<Int>> {
         return this.faultyNodes.asSequence()
                                 .take(upTo)
+                                .filter { it.values.first() != 0.0 }
                                 .map { it.asSequence().map { it.key } }
     }
 }
