@@ -19,7 +19,7 @@ class LandmarkRepair: RepairStrategy() {
         return program.mostLikelyFaulty(basedOn, 5)
 //                        .map { it.map { program.nodeInfo(it) } }
                         .map { it.filterIsInstance<Landmark>() }
-                        .map { it.map { it.fullRelation to program.findNodes(it) } }
+                        .map { it.map { it.name to program.findNodes(it) } }
                         .flatMap { it.map { apart(it) } }
                         .map { createMutants(program, it) }
                         .filter { it.any() }

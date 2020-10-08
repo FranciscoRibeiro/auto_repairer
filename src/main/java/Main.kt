@@ -188,7 +188,7 @@ private fun loadReport(flType: FaultLocalizationType, reportPath: String): FLRep
 }
 
 private fun setupPatch(srcPath: String, alternative: AlternativeProgram): AlternativeProgram {
-    File(srcPath, alternative.fullName().replace(".", "/") + ".java").writeText(alternative.toString())
+    File(srcPath, alternative.fullName.replace(".", "/") + ".java").writeText(alternative.toString())
     return alternative
 }
 

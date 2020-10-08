@@ -1,5 +1,4 @@
 import com.github.javaparser.ParserConfiguration
-import com.github.javaparser.StaticJavaParser
 import com.github.javaparser.ast.CompilationUnit
 import com.github.javaparser.ast.Node
 import com.github.javaparser.ast.body.CallableDeclaration
@@ -7,7 +6,6 @@ import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration
 import com.github.javaparser.ast.expr.NameExpr
 import com.github.javaparser.resolution.UnsolvedSymbolException
 import com.github.javaparser.symbolsolver.JavaSymbolSolver
-import com.github.javaparser.symbolsolver.model.typesystem.ReferenceTypeImpl
 import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSolver
 import com.github.javaparser.symbolsolver.resolution.typesolvers.JarTypeSolver
 import com.github.javaparser.symbolsolver.resolution.typesolvers.JavaParserTypeSolver
@@ -196,7 +194,7 @@ class BuggyProgram(val srcPath: String) {
 
 
     private fun hasNameAndParams(decl: CallableDeclaration<*>, methodNode: Method): Boolean {
-        return decl.name.asString() == methodNode.name
+        return decl.name.asString() == methodNode.methodName
                 && decl.parameters.size == methodNode.params.size
                 && methodNode.params.zip(decl.parameters)
                         .all { it.first == it.second.typeAsString
@@ -215,5 +213,24 @@ class BuggyProgram(val srcPath: String) {
 
     fun resetFiles() {
         srcRoot.saveAll()
+    }
+
+    fun buildFullName(component: FLComponent): String {
+        return when(component){
+            is SFLComponent -> component.packageName + "." + component.simpleClassName
+            is QSFLNode -> {
+                val elements = mutableListOf(component)
+                var currentQSFLNode = component as QSFLNode
+                while(currentQSFLNode.parentId != 0){
+                    currentQSFLNode = (flReport as QSFLReport).nodeInfo(currentQSFLNode.parentId) ?: return ""
+                    elements.add(currentQSFLNode)
+                }
+                elements.reverse()
+                elements.take(elements.indexOfFirst { it is Class } + 1)
+                        .fold("", { name, qsflNode -> "$name.${qsflNode.name}" })
+                        .removePrefix(".")
+            }
+            else -> ""
+        }
     }
 }

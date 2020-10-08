@@ -1,16 +1,16 @@
 package fault_localization.reports.qsfl
 
-class Method(signature: String, override val parentId: Int): QSFLNode() {
-    val name: String
+class Method(override val name: String, override val parentId: Int): QSFLNode() {
+    val methodName: String
     val params: List<String>
 
     init {
-        val tokens = signature.split("(")
+        val tokens = name.split("(")
         if (tokens.size == 2){
-            name = tokens[0]
+            methodName = tokens[0]
             params = tokens[1].removeSuffix(")").split(",")
         } else {
-            name = ""
+            methodName = ""
             params = emptyList()
         }
     }

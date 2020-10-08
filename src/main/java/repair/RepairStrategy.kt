@@ -66,7 +66,8 @@ abstract class RepairStrategy {
         return modifications.flatMap {
             (comp, nodesAndMutants) ->
                 program.setAST(comp)
-                modifyComponent(program, nodesAndMutants).map { it.setComponent(comp) }
+                val fullName = program.buildFullName(comp)
+                modifyComponent(program, nodesAndMutants).map { it.setFullName(fullName) }
         }
     }
 

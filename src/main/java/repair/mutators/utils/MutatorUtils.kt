@@ -22,6 +22,7 @@ import com.github.javaparser.symbolsolver.javaparsermodel.declarations.JavaParse
 import com.github.javaparser.symbolsolver.javaparsermodel.declarations.JavaParserParameterDeclaration
 import com.github.javaparser.symbolsolver.javaparsermodel.declarations.JavaParserSymbolDeclaration
 import printError
+import java.lang.IllegalStateException
 
 fun getEnclosing(nameExpr: NameExpr): MethodDeclaration? {
     return nameExpr.findAncestor(MethodDeclaration::class.java).orElse(null)
@@ -163,6 +164,9 @@ fun <T> resolveDecl(res: Resolvable<T>): T? {
         res.resolve()
     } catch(e: UnsolvedSymbolException){
         printError("Could not resolve named expression \"$res\"")
+        null
+    } catch (e: IllegalStateException){
+        e.printStackTrace()
         null
     }
 }

@@ -19,12 +19,13 @@ class Nodes {
         var id = jsonObj.getInt("id")
         var type = jsonObj.getString("type")
         this[id] = when(type){
+            "PACKAGE" -> Package(getName(jsonObj), getParentId(jsonObj))
             "CLASS" -> Class(getName(jsonObj), getParentId(jsonObj))
             "METHOD" -> Method(getName(jsonObj), getParentId(jsonObj))
             "PARAMETER" -> Parameter(getName(jsonObj), getParentId(jsonObj))
             "LANDMARK" -> Landmark(getName(jsonObj), getParentId(jsonObj))
-            "LINE" -> Line(getLine(jsonObj), getParentId(jsonObj))
-            else -> Undefined(0)
+            "LINE" -> Line(getLine(jsonObj), getParentId(jsonObj), getName(jsonObj))
+            else -> Undefined(0, "")
         }
     }
 
