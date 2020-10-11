@@ -22,14 +22,21 @@ class LandmarkLinesRepair: RepairStrategy() {
         val lines = program.mostLikelyFaulty(basedOn, 5)
 //                            .map { it.map { program.nodeInfo(it) } }
                             .map { it.filterIsInstance<Line>() }
-                            .map { it.map { it.line } }
+//                            .map { it.map { it.line } }
 
-        val alts = lines.map { nodesInLines(program, it) }
-                                .map { pairNodesWithMutOps(it) }
-                                .map { sortByMutOpRanking(it) }
-                                .map { bubbleUp(program, it, landmarks) }
-                                .map { createMutants(program, it) }
-                                .flatMap { modifyComponent(program, it) }
+        val alts = lines/*.map { it.map { line -> line to program.nodesInLine(line) } }*/
+                .map { nodesInLines(program, it) }
+                .map { it.flatMap { apart(it) } }
+//                .map { it.map { (line, nodes) -> line to nodes.flatMap { pairWithMutOp(it) } } }
+                .map { pairNodesWithMutOps(it) }
+                .map { it.flatMap { apart(it) } }
+//                .flatten()
+//                .flatMap { apart(it) }
+//                .sortedBy { it.second.second.rank }
+                .map { sortByMutOpRanking(it) }
+                .map { bubbleUp(program, it, landmarks) }
+                .map { createMutants(program, it) }
+                .flatMap { modifyComponent2(program, it) }
 
         return alts
 
@@ -50,43 +57,74 @@ class LandmarkLinesRepair: RepairStrategy() {
         return nameExprs.any { ne -> node.findAll(NameExpr::class.java, { it == ne }).isNotEmpty() }
     }
 
-    private fun bubbleUp(program: BuggyProgram, nodesAndMutOps: Sequence<Pair<Node, MutatorRepair<*>>>, landmarks: Sequence<Sequence<Landmark>>): Sequence<Pair<Node, MutatorRepair<*>>> {
+    /*private fun bubbleUp(program: BuggyProgram, nodesAndMutOps: Sequence<Pair<Node, MutatorRepair<*>>>, landmarks: Sequence<Sequence<Landmark>>): Sequence<Pair<Node, MutatorRepair<*>>> {
         val varNames = landmarks.map { it.mapNotNull { program.nodeInfo(it.parentId) } }
                                 .map { it.filterIsInstance<Parameter>() }
                                 .map { it.map { NameExpr(it.name) } }
 
-//        val involveVars = nodesAndMutOps.filter { containsVars(it.first, varNames) }
         var totalContains = mutableListOf<Pair<Node, MutatorRepair<*>>>() //iteratively add nodes containing landmark vars to this list
         var auxNoContains = nodesAndMutOps.toList() //change this list in every iteration so that it keeps shrinking; each iteration removes some nodes which contain landmark vars
         for (vn in varNames){
             val (contains, noContains) = auxNoContains.partition { containsVars(it.first, vn) }
-//        val (contains, noContains) = nodesAndMutOps.partition { containsVars(it.first, varNames) }
             totalContains.addAll(contains) //add nodes with vars
             auxNoContains = noContains //update list to most recent "non-containing" list
         }
 
-//        val noInvolveVars = nodesAndMutOps.asIterable().subtract(involveVars.asIterable())
-//        val noInvolveVars = nodesAndMutOps.toList().subtract(involveVars.toList())
-//        return (involveVars + noInvolveVars)
         return (totalContains + auxNoContains).asSequence()
-//        return (contains + noContains).asSequence()
+    }*/
+
+    private fun bubbleUp(program: BuggyProgram, nodesAndMutOps: Sequence<Pair<Line, Pair<Node, MutatorRepair<*>>>>, landmarks: Sequence<Sequence<Landmark>>): Sequence<Pair<Line, Pair<Node, MutatorRepair<*>>>> {
+        val varNames = landmarks.map { it.mapNotNull { program.nodeInfo(it.parentId) } }
+                .map { it.filterIsInstance<Parameter>() }
+                .map { it.map { NameExpr(it.name) } }
+
+        var totalContains = mutableListOf<Pair<Line, Pair<Node, MutatorRepair<*>>>>() //iteratively add nodes containing landmark vars to this list
+        var auxNoContains = nodesAndMutOps.toList() //change this list in every iteration so that it keeps shrinking; each iteration removes some nodes which contain landmark vars
+        for (vn in varNames){
+            val (contains, noContains) = auxNoContains.partition { containsVars(it.second.first, vn) }
+            totalContains.addAll(contains) //add nodes with vars
+            auxNoContains = noContains //update list to most recent "non-containing" list
+        }
+
+        return (totalContains + auxNoContains).asSequence()
     }
 
-    private fun sortByMutOpRanking(nodesAndMutOps: Sequence<Pair<Node, MutatorRepair<*>>>): Sequence<Pair<Node, MutatorRepair<*>>> {
+    /*private fun sortByMutOpRanking(nodesAndMutOps: Sequence<Pair<Node, MutatorRepair<*>>>): Sequence<Pair<Node, MutatorRepair<*>>> {
         return nodesAndMutOps.sortedBy { it.second.rank }
+    }*/
+
+    private fun sortByMutOpRanking(nodesAndMutOps: Sequence<Pair<Line, Pair<Node, MutatorRepair<*>>>>): Sequence<Pair<Line, Pair<Node, MutatorRepair<*>>>> {
+        return nodesAndMutOps.sortedBy { it.second.second.rank }
     }
 
-    private fun pairNodesWithMutOps(nodes: Sequence<Node>): Sequence<Pair<Node, MutatorRepair<*>>> {
+    /*private fun pairNodesWithMutOps(nodes: Sequence<Node>): Sequence<Pair<Node, MutatorRepair<*>>> {
         return nodes.flatMap { pairWithMutOp(it) }
+    }*/
+
+    private fun pairNodesWithMutOps(nodes: Sequence<Pair<Line, Node>>): Sequence<Pair<Line, Sequence<Pair<Node, MutatorRepair<*>>>>> {
+        return nodes.map { it.first to pairWithMutOp(it.second) }
     }
 
-    private fun nodesInLines(program: BuggyProgram, lineNrs: Sequence<Int>): Sequence<Node> {
+    /*private fun nodesInLines(program: BuggyProgram, lineNrs: Sequence<Int>): Sequence<Node> {
         return lineNrs.flatMap { program.nodesInLine(it) }
+    }*/
+
+    private fun nodesInLines(program: BuggyProgram, lines: Sequence<Line>): Sequence<Pair<Line, Sequence<Node>>> {
+        return lines.map { it to program.nodesInLine(it) }
     }
 
-    private fun createMutants(program: BuggyProgram, nodesAndMutOps: Sequence<Pair<Node, MutatorRepair<*>>>): Sequence<Pair<Node, List<Node>>> {
+    /*private fun createMutants(program: BuggyProgram, nodesAndMutOps: Sequence<Pair<Node, MutatorRepair<*>>>): Sequence<Pair<Node, List<Node>>> {
         return nodesAndMutOps.map { it.first to mutate(program, it.second, it.first) }
                                 .filter { it.second.isNotEmpty() }
+    }*/
+
+    private fun createMutants(program: BuggyProgram, nodesAndMutOps: Sequence<Pair<Line, Pair<Node, MutatorRepair<*>>>>): Sequence<Pair<Line, Sequence<Pair<Node, List<Node>>>>> {
+        return nodesAndMutOps.map { it.first to (it.second.first to mutate(program, it.second.second, it.second.first)) }
+                .groupPairs()
+                .map {
+                    (line, nodesAndMutants) ->
+                    line to nodesAndMutants.filter { (_, mutants) -> mutants.isNotEmpty() }
+                }
     }
 
     private fun mutate(program: BuggyProgram, mutOp: MutatorRepair<*>, node: Node): List<Node> {

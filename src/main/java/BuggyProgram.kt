@@ -74,6 +74,11 @@ class BuggyProgram(val srcPath: String) {
     fun nodesInLine(component: FLComponent): Sequence<Node> {
         val (line, fileAST) = when(component){
             is SFLComponent -> Pair(component.line, getFileAST(component.simpleClassName))
+            is Line -> {
+                val className = getClassName(component)
+                if(className == null) Pair(-1, null)
+                else Pair(component.line, getFileAST(className))
+            }
             else -> Pair(-1, null)
         }
         return if(fileAST != null) {

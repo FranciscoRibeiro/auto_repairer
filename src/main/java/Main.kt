@@ -219,7 +219,7 @@ fun run(cmd: String,
 
 private fun test(projDir: String): Boolean {
     println("Testing...")
-    return run("mvn test", projDir) == 0
+    return run("mvn -Dsurefire.timeout=120 test", projDir) == 0
 }
 
 private fun resetFiles(program: BuggyProgram) {
