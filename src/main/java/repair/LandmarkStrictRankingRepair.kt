@@ -19,12 +19,12 @@ class LandmarkStrictRankingRepair: RepairStrategy() {
         val alts = program.mostLikelyFaulty(basedOn, 5)
 //                        .map { it.map { program.nodeInfo(it) } }
                         .map { it.filterIsInstance<Landmark>() }
-                        .map { it.map { program.findNodes(it) } } //Only select the nodes that are "strictly coupled" to landmark variables
+                        .map { landmarks -> landmarks.map { it to program.findNodes(it) } } //Only select the nodes that are "strictly coupled" to landmark variables
 //                        .map { it.map { program.findNodesIndirectly(it) } }
-                        .map { it.flatten() }
+//                        .map { it.flatten() }
                         .map { createMutants(program, it) }
-                        .filter { it.any() }
-                        .flatMap { modifyComponent(program, it) }
+//                        .filter { it.any() }
+                        .flatMap { modifyComponent2(program, it) }
 
         return alts
 
@@ -35,11 +35,29 @@ class LandmarkStrictRankingRepair: RepairStrategy() {
 //                        .flatMap { modifyComponent(program, it) }
     }
 
-    private fun createMutants(program: BuggyProgram, nodes: Sequence<Node>): Sequence<Pair<Node, List<Node>>> {
+    /*private fun createMutants(program: BuggyProgram, nodes: Sequence<Node>): Sequence<Pair<Node, List<Node>>> {
         return nodes.flatMap { pairWithMutOp(it) }
                 .sortedBy { it.second.rank }
                 .map { it.first to mutate(program, it.second, it.first) }
                 .filter { it.second.isNotEmpty() }
+    }*/
+
+    private fun createMutants(program: BuggyProgram,
+                              compsAndNodes: Sequence<Pair<Landmark, Sequence<Node>>>)
+            : Sequence<Pair<Landmark, Sequence<Pair<Node, List<Node>>>>> {
+        return compsAndNodes
+                .map { (line, nodes) -> line to nodes.flatMap { pairWithMutOp(it) } }
+                .flatMap { apart(it) }
+                .sortedBy { (_, nodeMutOp) -> nodeMutOp.second.rank }
+                .map {
+                    (line, nodeMutOp) ->
+                    line to (nodeMutOp.first to mutate(program, nodeMutOp.second, nodeMutOp.first))
+                }
+                .groupPairs()
+                .map {
+                    (line, nodesAndMutants) ->
+                    line to nodesAndMutants.filter { (_, mutants) -> mutants.isNotEmpty() }
+                }
     }
 
     private fun mutate(program: BuggyProgram, mutOp: MutatorRepair<*>, node: Node): List<Node> {
