@@ -19,16 +19,25 @@ class LandmarkRepair: RepairStrategy() {
         return program.mostLikelyFaulty(basedOn, 5)
 //                        .map { it.map { program.nodeInfo(it) } }
                         .map { it.filterIsInstance<Landmark>() }
-                        .map { it.map { it.name to program.findNodes(it) } }
+//                        .map { it.map { it.name to program.findNodes(it) } }
+                .map { landmarks -> landmarks.map { it to program.findNodes(it) } }
                         .flatMap { it.map { apart(it) } }
                         .map { createMutants(program, it) }
                         .filter { it.any() }
-                        .flatMap { modifyComponent(program, it) }
+                        .flatMap { modifyComponent2(program, it) }
     }
 
-    private fun createMutants(program: BuggyProgram, relAndNodes: Sequence<Pair<String, Node>>): Sequence<Pair<Node, List<Node>>> {
+    /*private fun createMutants(program: BuggyProgram, relAndNodes: Sequence<Pair<String, Node>>): Sequence<Pair<Node, List<Node>>> {
         return relAndNodes.map { (rel, node) -> node to mutate(program, rel, node) }
                         .filter { it.second.isNotEmpty() }
+    }*/
+
+    private fun createMutants(program: BuggyProgram,
+                              relAndNodes: Sequence<Pair<Landmark, Node>>)
+            : Sequence<Pair<Landmark, Sequence<Pair<Node, List<Node>>>>> {
+        return relAndNodes.map { (landmark, node) -> landmark to (node to mutate(program, landmark.name, node)) }
+                .filter { it.second.second.isNotEmpty() }
+                .groupPairs()
     }
 
     private fun mutate(program: BuggyProgram, relation: String, node: Node): List<Node> {
