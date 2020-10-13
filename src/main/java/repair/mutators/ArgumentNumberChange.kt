@@ -30,7 +30,7 @@ class ArgumentNumberChange: MutatorRepair<Expression>() {
                                 MethodCallExpr(callExpr.scope.orElse(null)?.clone(),
                                         callExpr.typeArguments.orElse(null),
                                         callExpr.nameAsString,
-                                        NodeList(it))
+                                        NodeList(it.map { it.clone() }))
                             }
                         }
                 return x
@@ -44,7 +44,7 @@ class ArgumentNumberChange: MutatorRepair<Expression>() {
                         .map { fitParams(paramsAndTypes, it) }
                         .flatMap { overloadingConstructorFits ->
                             overloadingConstructorFits.map {
-                                ObjectCreationExpr(null, callExpr.type, NodeList(it))
+                                ObjectCreationExpr(null, callExpr.type, NodeList(it.map { it.clone() }))
                             }
                         }
                 return x
