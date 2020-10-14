@@ -192,8 +192,8 @@ private fun setupPatch(srcPath: String, alternative: AlternativeProgram): Altern
     return alternative
 }
 
-private fun savePatch(alternative: AlternativeProgram, counter: Int) {
-    val patchDir = File("generated_patches", LocalDateTime.now().toString())
+private fun savePatch(saveDir: String, alternative: AlternativeProgram, counter: Int) {
+    val patchDir = File(saveDir, LocalDateTime.now().toString())
     patchDir.mkdirs()
     File(patchDir, "$counter.java").writeText(alternative.toString())
 }
@@ -227,9 +227,10 @@ private fun resetFiles(program: BuggyProgram) {
 }
 
 fun main(args: Array<String>) {
-    if(args.size != 3) errorOut("Incorrect Usage")
+    if(args.size != 5) errorOut("Incorrect Usage")
 
-    val (srcPath, strategy, reportPath) = Triple(args[0], args[1], args[2])
+    val (basePath, srcPath, outputDir) = Triple(args[0], args[1], args[2])
+    val (strategy, reportPath) = Pair(args[3], args[4])
     val repairStrategy = getRepairStrategy(strategy) ?: errorOut("Invalid strategy: $strategy")
     val flType = getFLType(strategy) ?: errorOut("Invalid FL type")
     val report = loadReport(flType, reportPath)
@@ -238,8 +239,8 @@ fun main(args: Array<String>) {
     repairStrategy.repair(program, flType)
             .map { resetFiles(program); it }
             .map { setupPatch(srcPath, it) }
-            .map { savePatch(it, ++counter) }
-            .find { test(srcPath.removeSuffix("/src")) }
+            .map { savePatch(outputDir, it, ++counter) }
+            .find { test(basePath) }
 
     println("end")
 }
