@@ -23,8 +23,8 @@ class BruteForceAdHocRepair: RepairStrategy() {
             : Sequence<Pair<SFLComponent, Sequence<Pair<Node, List<Node>>>>> {
         return compsAndNodes
                 .map { (line, nodes) -> line to nodes.flatMap { pairWithMutOp(it) } }
-                .mix()
-                .map { (line, nodesAndMutOps) -> line to nodesAndMutOps.mix() }
+                .shuffled()
+                .map { (line, nodesAndMutOps) -> line to nodesAndMutOps.shuffled() }
                 .map {
                     (line, nodesAndMutOps) ->
                         line to nodesAndMutOps.map { (node, mutOp) -> node to mutate(program, mutOp, node) }

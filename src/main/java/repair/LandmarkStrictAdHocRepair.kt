@@ -47,16 +47,16 @@ class LandmarkStrictAdHocRepair: RepairStrategy() {
                               compsAndNodes: Sequence<Pair<Landmark, Sequence<Node>>>)
             : Sequence<Pair<Landmark, Sequence<Pair<Node, List<Node>>>>> {
         return compsAndNodes
-                .map { (line, nodes) -> line to nodes.flatMap { pairWithMutOp(it) } }
-                .mix()
-                .map { (line, nodesAndMutOps) -> line to nodesAndMutOps.mix() }
+                .map { (landmark, nodes) -> landmark to nodes.flatMap { pairWithMutOp(it) } }
+                .shuffled()
+                .map { (landmark, nodesAndMutOps) -> landmark to nodesAndMutOps.shuffled() }
                 .map {
-                    (line, nodesAndMutOps) ->
-                    line to nodesAndMutOps.map { (node, mutOp) -> node to mutate(program, mutOp, node) }
+                    (landmark, nodesAndMutOps) ->
+                    landmark to nodesAndMutOps.map { (node, mutOp) -> node to mutate(program, mutOp, node) }
                 }
                 .map {
-                    (line, nodesAndMutants) ->
-                    line to nodesAndMutants.filter { (_, mutants) -> mutants.isNotEmpty() }
+                    (landmark, nodesAndMutants) ->
+                    landmark to nodesAndMutants.filter { (_, mutants) -> mutants.isNotEmpty() }
                 }
     }
 
