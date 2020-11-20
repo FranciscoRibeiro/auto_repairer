@@ -32,7 +32,7 @@ class BuggyProgram(val srcPath: String) {
     }
 
     private fun dependencyJars(): List<String> {
-        val dependencyDir = System.getProperty("user.home") + "/.m2/repository"
+        val dependencyDir = System.getenv("HOME") + "/.m2/repository"
         return System.getProperty("java.class.path")
                 .split(File.pathSeparator)
                 .filter { it.endsWith(".jar") && it.startsWith(dependencyDir) }
