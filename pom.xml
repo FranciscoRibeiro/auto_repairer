@@ -135,7 +135,7 @@
                         <configuration>
                             <archive>
                                 <manifest>
-                                    <mainClass>TestMainKt</mainClass>
+                                    <mainClass>MainKt</mainClass>
                                 </manifest>
                             </archive>
                             <descriptorRefs>
