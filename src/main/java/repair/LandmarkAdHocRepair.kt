@@ -22,6 +22,7 @@ class LandmarkAdHocRepair: RepairStrategy() {
 //                        .map { it.map { program.nodeInfo(it) } }
                         .map { it.filterIsInstance<Landmark>() }
                         .map { landmarks -> landmarks.map { it to program.findNodesIndirectly(it) } }
+                        .removeDups()
 //                        .map { it.flatten() }
                         .map { createMutants(program, it) }
 //                        .filter { it.any() }

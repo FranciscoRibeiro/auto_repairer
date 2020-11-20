@@ -12,6 +12,7 @@ import com.github.javaparser.ast.stmt.ExpressionStmt
 import com.github.javaparser.ast.stmt.ReturnStmt
 import fault_localization.FaultLocalizationType
 import fault_localization.reports.FLComponent
+import fault_localization.reports.qsfl.Landmark
 import printError
 import repair.mutators.*
 import java.lang.IllegalArgumentException
@@ -120,20 +121,33 @@ abstract class RepairStrategy {
     internal fun <A, B> Sequence<Pair<A,B>>.groupPairs(): Sequence<Pair<A,Sequence<B>>> {
         return this.groupBy({ it.first }, { it.second }).asSequence().map { it.key to it.value.asSequence() }
     }
-}
 
-internal fun <T> Sequence<Sequence<T>>.removeDups(): Sequence<Sequence<T>> {
-    val noDups = mutableListOf<MutableList<T>>()
-    for (elemList in this){
-        val subNoDups = mutableListOf<T>()
-        noDups.add(subNoDups)
-        for(elem in elemList){
-            if(!noDups.has(elem)){
-                subNoDups.add(elem)
+    internal fun Sequence<Sequence<Pair<Landmark,Sequence<Node>>>>.removeDups(): Sequence<Sequence<Pair<Landmark,Sequence<Node>>>> {
+        val nodesNoDups = mutableListOf<Node>()
+        val noDups = mutableListOf<MutableList<Pair<Landmark,MutableList<Node>>>>()
+        for (rankSpot in this){
+            val rankSpotNoDups = mutableListOf<Pair<Landmark,MutableList<Node>>>()
+            noDups.add(rankSpotNoDups)
+            for(compAndNodes in rankSpot){
+                val compAndNodesNoDups = compAndNodes.first to mutableListOf<Node>()
+                rankSpotNoDups.add(compAndNodesNoDups)
+                for(node in compAndNodes.second){
+                    if(!nodesNoDups.hasRef(node)){
+                        compAndNodesNoDups.second.add(node)
+                        nodesNoDups.add(node)
+                    }
+                }
             }
         }
+        return noDups.map { it.map { it.first to it.second.asSequence() }.asSequence() }.asSequence()
     }
-    return noDups.map { it.asSequence() }.asSequence()
+
+    internal fun <T> List<T>.hasRef(e: T): Boolean {
+        for(elem in this){
+            if(e === elem) return true
+        }
+        return false
+    }
 }
 
 internal fun <E, T> List<List<E>>.has(e: T): Boolean {

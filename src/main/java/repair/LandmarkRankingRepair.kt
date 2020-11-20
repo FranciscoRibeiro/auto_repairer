@@ -15,7 +15,7 @@ class LandmarkRankingRepair: RepairStrategy() {
 //                        .map { it.map { program.findNodesIndirectly(it) } } //Select all the nodes in lines where landmark variables are present, even if they are not directly associated
                         .map { landmarks -> landmarks.map { it to program.findNodesIndirectly(it) } }
 //                        .map { it.flatten() }
-//                        .removeDups() //Different landmarks may cause the same node to be collected multiple times; remove duplicates to avoid producing the same mutations
+                        .removeDups() //Different landmarks may cause the same node to be collected multiple times; remove duplicates to avoid producing the same mutations
                         .map { createMutants(program, it) }
 //                        .filter { it.any() }
                         .flatMap { modifyComponent2(program, it) }
