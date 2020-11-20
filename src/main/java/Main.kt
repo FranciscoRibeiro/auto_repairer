@@ -217,13 +217,22 @@ fun run(cmd: String,
     return pb.start().waitFor()
 }
 
+val MAX_TRIES = 100
+var tries = 0
+
 private fun test(projDir: String): Boolean {
-    println("Testing...")
+    tries++
+    println("Testing... $tries")
     return run("mvn -Dsurefire.timeout=120 test", projDir) == 0
+//    return run("/usr/local/maven/bin/mvn -Dhttps.protocols=TLSv1.2 -Dsurefire.timeout=120 test", projDir) == 0
 }
 
 private fun resetFiles(program: BuggyProgram) {
     program.resetFiles()
+}
+
+fun maxTriesReached(): Boolean {
+    return tries == MAX_TRIES
 }
 
 fun main(args: Array<String>) {
@@ -240,7 +249,7 @@ fun main(args: Array<String>) {
             .map { resetFiles(program); it }
             .map { setupPatch(srcPath, it) }
             .map { savePatch(outputDir, it, ++counter) }
-            .find { test(basePath) }
+            .find { test(basePath) || maxTriesReached() }
 
     println("end")
 }
