@@ -5,7 +5,6 @@ import com.github.javaparser.ast.NodeList
 import com.github.javaparser.ast.expr.Expression
 import com.github.javaparser.ast.expr.MethodCallExpr
 import com.github.javaparser.ast.expr.ObjectCreationExpr
-import com.github.javaparser.ast.type.ReferenceType
 import com.github.javaparser.resolution.types.ResolvedReferenceType
 import com.github.javaparser.resolution.types.ResolvedType
 import com.github.javaparser.resolution.types.ResolvedTypeVariable
@@ -54,14 +53,28 @@ class ArgumentNumberChange: MutatorRepair<Expression>() {
     }
 
     private fun fitParams(paramsAndTypes: List<Pair<Expression, ResolvedType>>, types: List<ResolvedType>): List<List<Expression>> {
-        val paramFits = types.map { paramTypeMatches(paramsAndTypes, it) }
-                            .replaceDupsWithDefault()
-                            .map { lExpr -> lExpr.map { exprAndType -> exprAndType.first } }
-//        if (paramFits.any { it.isEmpty() }) return emptyList()
-        return paramFits.fold(
-                listOf(listOf()),
-                { acc, lExpr -> acc.flatMap { subList -> lExpr.map { expr -> subList + expr } } }
-        )
+        return types.map { paramTypeMatches(paramsAndTypes, it) }
+                .fold(listOf(listOf<Pair<Expression,ResolvedType>>()),
+                    { acc, exprsAndTypes ->
+                        acc.flatMap { subList ->
+                            exprsAndTypes.map { exprType ->
+                                subList + exprType }
+                    }
+                })
+                .map { replaceDupsWithDefaults(it) }
+                .distinct()
+    }
+
+    private fun replaceDupsWithDefaults(exprsTypes: List<Pair<Expression, ResolvedType>>): List<Expression> {
+        val noRepeated = listOf<Pair<Expression,ResolvedType>>()
+        return exprsTypes.fold(noRepeated,
+                { acc, exprType -> defaultIfContains(acc, exprType) })
+                .map { it.first }
+    }
+
+    private fun defaultIfContains(list: List<Pair<Expression, ResolvedType>>, exprType: Pair<Expression, ResolvedType>): List<Pair<Expression, ResolvedType>> {
+        return if(exprType in list) list + (defaultValue(exprType.second) to exprType.second)
+        else list + exprType
     }
 
     private fun List<List<Pair<Expression, ResolvedType>>>.replaceDupsWithDefault(): List<List<Pair<Expression, ResolvedType>>> {
