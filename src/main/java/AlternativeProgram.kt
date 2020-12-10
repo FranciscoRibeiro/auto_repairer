@@ -7,14 +7,19 @@ import fault_localization.reports.sfl.SFLComponent
 
 class AlternativeProgram(val insertedMutant: Node, val modifiedProgram: CompilationUnit) {
 //    private var component: FLComponent? = null
-    lateinit var fullName: String
+//    lateinit var fullName: String
+    lateinit var fullPath: String
 
     /*constructor(insertedMutant: Node, modifiedProgram: CompilationUnit, component: FLComponent): this(insertedMutant, modifiedProgram){
         this.component = component
     }*/
 
-    constructor(insertedMutant: Node, modifiedProgram: CompilationUnit, fullName: String): this(insertedMutant, modifiedProgram){
+    /*constructor(insertedMutant: Node, modifiedProgram: CompilationUnit, fullName: String): this(insertedMutant, modifiedProgram){
         this.fullName = fullName
+    }*/
+
+    constructor(insertedMutant: Node, modifiedProgram: CompilationUnit, fullPath: String): this(insertedMutant, modifiedProgram){
+        this.fullPath = fullPath
     }
 
     /*fun setComponent(component: FLComponent): AlternativeProgram {
@@ -22,8 +27,13 @@ class AlternativeProgram(val insertedMutant: Node, val modifiedProgram: Compilat
         return this
     }*/
 
-    fun setFullName(fullName: String): AlternativeProgram {
+    /*fun setFullName(fullName: String): AlternativeProgram {
         this.fullName = fullName
+        return this
+    }*/
+
+    fun setFullPath(fullPath: String): AlternativeProgram {
+        this.fullPath = fullPath
         return this
     }
 

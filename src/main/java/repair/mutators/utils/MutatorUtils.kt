@@ -24,7 +24,19 @@ import com.github.javaparser.symbolsolver.javaparsermodel.declarations.JavaParse
 import printError
 import java.lang.IllegalStateException
 
-fun getEnclosing(nameExpr: NameExpr): MethodDeclaration? {
+fun getEnclosing(expr: Expression): CallableDeclaration<*>? {
+    return getEnclosingMethod(expr) ?: getEnclosingConstructor(expr)
+}
+
+fun getEnclosingMethod(expr: Expression): MethodDeclaration? {
+    return expr.findAncestor(MethodDeclaration::class.java).orElse(null)
+}
+
+fun getEnclosingConstructor(expr: Expression): ConstructorDeclaration? {
+    return expr.findAncestor(ConstructorDeclaration::class.java).orElse(null)
+}
+
+/*fun getEnclosing(nameExpr: NameExpr): MethodDeclaration? {
     return nameExpr.findAncestor(MethodDeclaration::class.java).orElse(null)
 }
 
@@ -38,7 +50,7 @@ fun getEnclosingMethod(litExpr: LiteralExpr): MethodDeclaration? {
 
 fun getEnclosingConstructor(litExpr: LiteralExpr): ConstructorDeclaration? {
     return litExpr.findAncestor(ConstructorDeclaration::class.java).orElse(null)
-}
+}*/
 
 fun isTypeNumber(type: ResolvedType): Boolean {
     return if(type is ResolvedPrimitiveType) type.isNumeric else false

@@ -1,5 +1,6 @@
 import fault_localization.FaultLocalizationType
 import fault_localization.reports.FLReport
+import fault_localization.reports.morpheus.MorpheusReport
 import fault_localization.reports.qsfl.QSFLReport
 import fault_localization.reports.sfl.SFLReport
 import repair.*
@@ -168,6 +169,8 @@ fun getRepairStrategy(strategy: String): RepairStrategy? {
         "-la" -> LandmarkAdHocRepair()
         "-lsa" -> LandmarkStrictAdHocRepair()
         "-ll" -> LandmarkLinesRepair()
+        "-ms" -> MorpheusStrictRepair()
+        "-ml" -> MorpheusLineRepair()
         else -> null
     }
 }
@@ -176,6 +179,7 @@ fun getFLType(strategy: String): FaultLocalizationType? {
     return when(strategy){
         "-br", "-ba", "-bn" -> FaultLocalizationType.SFL
         "-l", "-lr", "-lsr", "-la", "-lsa", "-ll" -> FaultLocalizationType.QSFL
+        "-ms", "-ml" -> FaultLocalizationType.MORPHEUS
         else -> null
     }
 }
@@ -184,11 +188,13 @@ private fun loadReport(flType: FaultLocalizationType, reportPath: String): FLRep
     return when (flType) {
         FaultLocalizationType.SFL -> SFLReport(reportPath)
         FaultLocalizationType.QSFL -> QSFLReport(reportPath)
+        FaultLocalizationType.MORPHEUS -> MorpheusReport(reportPath)
     }
 }
 
 private fun setupPatch(srcPath: String, alternative: AlternativeProgram): AlternativeProgram {
-    File(srcPath, alternative.fullName.replace(".", "/") + ".java").writeText(alternative.toString())
+//    File(srcPath, alternative.fullName.replace(".", "/") + ".java").writeText(alternative.toString())
+    File(alternative.fullPath).writeText(alternative.toString())
     return alternative
 }
 
@@ -245,11 +251,11 @@ fun main(args: Array<String>) {
     val report = loadReport(flType, reportPath)
     val program = BuggyProgram(srcPath, report)
     var counter = 0
-    repairStrategy.repair(program, flType)
-            .map { resetFiles(program); it }
-            .map { setupPatch(srcPath, it) }
+    repairStrategy.repair(program, flType).toList()
+            /*.map { resetFiles(program); it }
+            .map { setupPatch(srcPath, it) }*/
             .map { savePatch(outputDir, it, ++counter) }
-            .find { test(basePath) || maxTriesReached() }
+//            .find { test(basePath) || maxTriesReached() }
 
     println("end")
 }

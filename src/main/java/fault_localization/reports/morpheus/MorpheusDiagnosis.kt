@@ -14,22 +14,26 @@ class MorpheusDiagnosis {
     private fun parseMorpheus(diagnosisFile: File): List<MorpheusComponent> {
         val csvParser = CSVParserBuilder().withSeparator(';').build()
         val csvRecords = CSVReaderBuilder(diagnosisFile.bufferedReader())
-                .withSkipLines(1)
+//                .withSkipLines(1)
                 .withCSVParser(csvParser)
                 .build().readAll()
         return csvRecords.flatMap { record -> buildMorpheusComponents(record) }
     }
 
     private fun buildMorpheusComponents(record: Array<String>): List<MorpheusComponent> {
-        val mutOps = fieldToList(record[5])
-        val startEndLines = fieldToList(record[6])
-        val startEndColumns = fieldToList(record[7])
+        val packageName = extractPackageName(record[2])
+        val className = extractClassName(record[2])
+        val mutOps = fieldToList(record[7])
+        val startEndLines = fieldToList(record[10])
+        val startEndColumns = fieldToList(record[11])
         if (mutOps.size != startEndLines.size || startEndLines.size != startEndColumns.size) {
             return emptyList()
         } else {
             val components = mutableListOf<MorpheusComponent>()
             for (i in mutOps.indices){
-                components.add(MorpheusComponent(mutOps[i],
+                components.add(MorpheusComponent(packageName,
+                        className,
+                        mutOps[i],
                         rangeToPair(startEndLines[i]),
                         rangeToPair(startEndColumns[i])))
             }
@@ -37,14 +41,26 @@ class MorpheusDiagnosis {
         }
     }
 
+    private fun extractPackageName(fullName: String): String {
+        return fullName.split("$").first()
+    }
+
+    private fun extractClassName(fullName: String): String {
+        return fullName.split("$").last()
+    }
+
     private fun rangeToPair(range: String): Pair<Int, Int> {
-        val (start, end) = range.split("-")
-        return Pair(start.toInt(), end.toInt())
+        val startEnd = range.split("-")
+        return if (startEnd.size == 2) Pair(startEnd[0].toInt(), startEnd[1].toInt()) else Pair(0,0)
     }
 
     private fun fieldToList(field: String): List<String> {
         return field.drop(1).dropLast(1) //ignore open/close square brackets
                 .split(",").map { it.trim() }
+    }
+
+    fun mostLikelyFaulty(upTo: Int): Sequence<MorpheusComponent> {
+        return inferences.take(upTo).asSequence()
     }
 }
 

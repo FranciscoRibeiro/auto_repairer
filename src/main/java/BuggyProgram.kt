@@ -14,6 +14,8 @@ import com.github.javaparser.utils.SourceRoot
 import fault_localization.FaultLocalizationType
 import fault_localization.reports.FLComponent
 import fault_localization.reports.FLReport
+import fault_localization.reports.morpheus.MorpheusComponent
+import fault_localization.reports.morpheus.MorpheusReport
 import fault_localization.reports.qsfl.*
 import fault_localization.reports.sfl.SFLComponent
 import repair.mutators.utils.resolveDecl
@@ -59,6 +61,11 @@ class BuggyProgram(val srcPath: String) {
 //        return /*setup(*/StaticJavaParser.parse(srcPath)/*)*/
     }
 
+    fun currentTreeFullPath(): String {
+        val storage = currentTree.storage.orElse(null) ?: return ""
+        return storage.path.toString()
+    }
+
     fun mostLikelyFaulty(basedOn: FaultLocalizationType, upTo: Int = 1): Sequence<Sequence<FLComponent>> {
         return flReport.mostLikelyFaulty(upTo)
         /*return when(basedOn){
@@ -73,11 +80,12 @@ class BuggyProgram(val srcPath: String) {
 
     fun nodesInLine(component: FLComponent): Sequence<Node> {
         val (line, fileAST) = when(component){
-            is SFLComponent -> Pair(component.line, getFileAST(component.simpleClassName))
+            is SFLComponent -> Pair(component.line, getFileAST(component.packageName, component.simpleClassName))
             is Line -> {
                 val className = getClassName(component)
+                val packageName = getPackageName(component)
                 if(className == null) Pair(-1, null)
-                else Pair(component.line, getFileAST(className))
+                else Pair(component.line, getFileAST(packageName, className))
             }
             else -> Pair(-1, null)
         }
@@ -88,13 +96,28 @@ class BuggyProgram(val srcPath: String) {
         else emptySequence()
     }
 
-    private fun getFileAST(simpleClassName: String): CompilationUnit? {
-        val fileASTs = allTrees.filter {
-            tree ->
-            tree.findFirst(ClassOrInterfaceDeclaration::class.java, { it.nameAsString == simpleClassName }).isPresent
-        }
+    private fun getPackageName(component: QSFLNode): String {
+        //TODO: Complete
+        return ""
+    }
+
+    private fun getFileAST(packageName: String, simpleClassName: String): CompilationUnit? {
+        val fileASTs = allTrees.filter { tree -> hasFullClassName(tree, packageName, simpleClassName)}
         return if(fileASTs.size == 1) return fileASTs[0]
         else null
+    }
+
+    private fun hasFullClassName(tree: CompilationUnit, packageName: String, simpleClassName: String): Boolean {
+        return hasPackageName(tree, packageName) && hasSimpleClassName(tree, simpleClassName)
+    }
+
+    private fun hasPackageName(tree: CompilationUnit, packageName: String): Boolean {
+        val treePackageName = tree.packageDeclaration.orElse(null) ?: return false
+        return treePackageName.nameAsString == packageName
+    }
+
+    private fun hasSimpleClassName(tree: CompilationUnit, simpleClassName: String): Boolean {
+        return tree.findFirst(ClassOrInterfaceDeclaration::class.java, { it.nameAsString == simpleClassName }).isPresent
     }
 
     private fun getClassName(qsflNode: QSFLNode): String? {
@@ -109,12 +132,13 @@ class BuggyProgram(val srcPath: String) {
     *  If successful, it returns the newly set AST.
     *  When using this function, if one is not sure the AST can be correctly set, the output should be checked */
     fun setAST(component: FLComponent): CompilationUnit? {
-        val className = when(component) {
-            is SFLComponent -> component.simpleClassName
-            is QSFLNode -> getClassName(component)
+        val (packageName, className) = when(component) {
+//            is SFLComponent -> component.simpleClassName
+//            is QSFLNode -> getClassName(component)
+            is MorpheusComponent -> Pair(component.packageName, component.simpleClassName)
             else -> return null
         } ?: return null
-        currentTree = getFileAST(className) ?: return null
+        currentTree = getFileAST(packageName, className) ?: return null
         return currentTree
     }
 
@@ -186,6 +210,18 @@ class BuggyProgram(val srcPath: String) {
 //            }
 //        }
 //        return associated.asSequence()
+    }
+
+    fun findNodes(morpheusComp: MorpheusComponent): Sequence<Node> {
+        setAST(morpheusComp)
+        return currentTree.findAll(Node::class.java, { morpheusComp.hasSamePosition(it) })
+                .asSequence()
+    }
+
+    fun findNodesInLine(morpheusComp: MorpheusComponent): Sequence<Node> {
+        setAST(morpheusComp)
+        return currentTree.findAll(Node::class.java, { morpheusComp.hasSameLine(it) })
+                .asSequence()
     }
 
     private fun containsVar(node: Node, nameExpr: NameExpr): Boolean {

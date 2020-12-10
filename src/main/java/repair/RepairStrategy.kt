@@ -7,6 +7,7 @@ import com.github.javaparser.ast.Modifier
 import com.github.javaparser.ast.Node
 import com.github.javaparser.ast.body.FieldDeclaration
 import com.github.javaparser.ast.body.Parameter
+import com.github.javaparser.ast.body.VariableDeclarator
 import com.github.javaparser.ast.expr.*
 import com.github.javaparser.ast.stmt.ExpressionStmt
 import com.github.javaparser.ast.stmt.ReturnStmt
@@ -54,7 +55,8 @@ abstract class RepairStrategy {
             FieldAccessExpr::class.java to listOf(ReferenceReplacementContent(), Negation(),
                     ArithmeticOperatorInsertion()),
             ArrayAccessExpr::class.java to listOf(Negation(), ArithmeticOperatorInsertion()),
-            Parameter::class.java to listOf(ArgumentTypeChange())
+            Parameter::class.java to listOf(ArgumentTypeChange()),
+            VariableDeclarator::class.java to listOf(MemberVariableAssignmentInsertion())
     )
 
     abstract fun repair(program: BuggyProgram, basedOn: FaultLocalizationType): Sequence<AlternativeProgram>
@@ -67,8 +69,10 @@ abstract class RepairStrategy {
         return modifications.flatMap {
             (comp, nodesAndMutants) ->
                 program.setAST(comp)
-                val fullName = program.buildFullName(comp)
-                modifyComponent(program, nodesAndMutants).map { it.setFullName(fullName) }
+//                val fullName = program.buildFullName(comp)
+                val fullPath = program.currentTreeFullPath()
+//                modifyComponent(program, nodesAndMutants).map { it.setFullName(fullName) }
+                modifyComponent(program, nodesAndMutants).map { it.setFullPath(fullPath) }
         }
     }
 
