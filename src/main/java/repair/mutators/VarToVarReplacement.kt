@@ -11,7 +11,7 @@ import com.github.javaparser.resolution.types.ResolvedType
 import printError
 import repair.mutators.utils.*
 
-class VarToVarReplacement: MutatorRepair<NameExpr>() {
+class VarToVarReplacement(val ignoreTypes: Boolean = false): MutatorRepair<NameExpr>() {
     override val rank: Int
         get() = 3
 
@@ -35,11 +35,11 @@ class VarToVarReplacement: MutatorRepair<NameExpr>() {
         }
         else if(isTypeReference(type)){
             varNames.addAll(
-                    methodDecl.findAll(Parameter::class.java, { matchesType(it, type as ResolvedReferenceType) })
+                    methodDecl.findAll(Parameter::class.java, { ignoreTypes || matchesType(it, type as ResolvedReferenceType) })
                             .map { it.nameAsString }
             )
             varNames.addAll(
-                    methodDecl.findAll(NameExpr::class.java, { matchesType(it, type as ResolvedReferenceType) })
+                    methodDecl.findAll(NameExpr::class.java, { ignoreTypes || matchesType(it, type as ResolvedReferenceType) })
                             .map { it.nameAsString }
             )
         }
