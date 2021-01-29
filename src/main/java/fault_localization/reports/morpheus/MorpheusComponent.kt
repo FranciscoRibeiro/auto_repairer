@@ -14,7 +14,7 @@ class MorpheusComponent(val packageName: String,
         val (startLine, endLine) = Pair(nodeRange.begin.line, nodeRange.end.line)
         val (startColumn, endColumn) = Pair(nodeRange.begin.column, nodeRange.end.column)
         return startLine == startEndLines.first && endLine == startEndLines.second
-                && startColumn == startEndColumns.first && endColumn == startEndColumns.second
+                && startColumn >= startEndColumns.first && endColumn <= startEndColumns.second
     }
 
     fun hasSameLine(node: Node): Boolean {
