@@ -24,8 +24,8 @@ class MorpheusDiagnosis {
         val packageName = extractPackageName(record[2])
         val className = extractClassName(record[2])
         val mutOps = fieldToList(record[7])
-        val startEndLines = fieldToList(record[10])
-        val startEndColumns = fieldToList(record[11])
+        val startEndLines = fieldToList(record[11])
+        val startEndColumns = fieldToList(record[12])
         if (mutOps.size != startEndLines.size || startEndLines.size != startEndColumns.size) {
             return emptyList()
         } else {
