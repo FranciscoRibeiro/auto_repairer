@@ -6,6 +6,7 @@ import fault_localization.reports.FLComponent
 class MorpheusComponent(val packageName: String,
                         val simpleClassName: String,
                         val mutOp: String,
+                        val callable: Callable,
                         val startEndLines: Pair<Int, Int>,
                         val startEndColumns: Pair<Int, Int>): FLComponent {
 

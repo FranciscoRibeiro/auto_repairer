@@ -24,6 +24,7 @@ class MorpheusDiagnosis {
         val packageName = extractPackageName(record[2])
         val className = extractClassName(record[2])
         val mutOps = fieldToList(record[7])
+        val callables = fieldToList(record[8], "),").map { closeSignature(it) }
         val startEndLines = fieldToList(record[11])
         val startEndColumns = fieldToList(record[12])
         if (mutOps.size != startEndLines.size || startEndLines.size != startEndColumns.size) {
@@ -34,11 +35,17 @@ class MorpheusDiagnosis {
                 components.add(MorpheusComponent(packageName,
                         className,
                         mutOps[i],
+                        Callable(callables[i]),
                         rangeToPair(startEndLines[i]),
                         rangeToPair(startEndColumns[i])))
             }
             return components
         }
+    }
+
+    private fun closeSignature(signature: String): String {
+        return if (signature.isNotEmpty() && signature.last() != ')') "$signature)"
+        else signature
     }
 
     private fun extractPackageName(fullName: String): String {
@@ -54,9 +61,9 @@ class MorpheusDiagnosis {
         return if (startEnd.size == 2) Pair(startEnd[0].toInt(), startEnd[1].toInt()) else Pair(0,0)
     }
 
-    private fun fieldToList(field: String): List<String> {
+    private fun fieldToList(field: String, sep: String = ","): List<String> {
         return field.drop(1).dropLast(1) //ignore open/close square brackets
-                .split(",").map { it.trim() }
+                .split(sep).map { it.trim() }
     }
 
     fun mostLikelyFaulty(upTo: Int): Sequence<MorpheusComponent> {
