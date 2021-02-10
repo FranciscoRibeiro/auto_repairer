@@ -49,7 +49,7 @@ abstract class MorpheusRepair: RepairStrategy() {
 
     private fun mutate(program: BuggyProgram, mutOp: MutatorRepair<*>, node: Node): List<Node> {
         val mutOps = mutators[node.javaClass]?.map { it.javaClass } ?: return emptyList()
-        return if(mutOp.javaClass in mutOps) { println("exists"); mutOp.repair(program, node) }
+        return if(mutOp.javaClass in mutOps) { /*println("exists");*/ mutOp.repair(program, node) }
         else { emptyList() }
     }
 }

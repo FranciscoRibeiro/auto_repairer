@@ -19,7 +19,7 @@ class VarToConsReplacement: MutatorRepair<NameExpr>() {
             }
         }
 
-        val enclosingDecl = getEnclosing(nameExpr) ?: return emptyList()
+        val enclosingDecl = getEnclosingCallable(nameExpr) ?: return emptyList()
         val type = calcType(nameExpr)
         //if it is an array or NOT a number
         if(type != null && (type.isArray || !isTypeNumber(type))) return emptyList()

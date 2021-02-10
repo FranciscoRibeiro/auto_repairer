@@ -11,7 +11,7 @@ class ConsToVarReplacement: MutatorRepair<LiteralExpr>() {
         get() = 7
 
     override fun checkedRepair(program: BuggyProgram, litExpr: LiteralExpr): List<NameExpr> {
-        val enclosing = getEnclosing(litExpr) ?: return emptyList()
+        val enclosing = getEnclosingCallable(litExpr) ?: return emptyList()
         val varNames = mutableSetOf<String>()
 
         if(isNumeric(litExpr)){

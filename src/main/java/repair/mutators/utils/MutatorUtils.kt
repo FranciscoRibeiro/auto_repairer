@@ -24,16 +24,16 @@ import com.github.javaparser.symbolsolver.javaparsermodel.declarations.JavaParse
 import printError
 import java.lang.IllegalStateException
 
-fun getEnclosing(expr: Expression): CallableDeclaration<*>? {
-    return getEnclosingMethod(expr) ?: getEnclosingConstructor(expr)
+fun getEnclosingCallable(node: Node): CallableDeclaration<*>? {
+    return getEnclosingMethod(node) ?: getEnclosingConstructor(node)
 }
 
-fun getEnclosingMethod(expr: Expression): MethodDeclaration? {
-    return expr.findAncestor(MethodDeclaration::class.java).orElse(null)
+fun getEnclosingMethod(node: Node): MethodDeclaration? {
+    return node.findAncestor(MethodDeclaration::class.java).orElse(null)
 }
 
-fun getEnclosingConstructor(expr: Expression): ConstructorDeclaration? {
-    return expr.findAncestor(ConstructorDeclaration::class.java).orElse(null)
+fun getEnclosingConstructor(node: Node): ConstructorDeclaration? {
+    return node.findAncestor(ConstructorDeclaration::class.java).orElse(null)
 }
 
 /*fun getEnclosing(nameExpr: NameExpr): MethodDeclaration? {

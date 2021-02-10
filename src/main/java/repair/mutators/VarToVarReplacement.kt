@@ -4,11 +4,7 @@ import BuggyProgram
 import com.github.javaparser.ast.body.Parameter
 import com.github.javaparser.ast.expr.NameExpr
 import com.github.javaparser.ast.type.ReferenceType
-import com.github.javaparser.resolution.UnsolvedSymbolException
-import com.github.javaparser.resolution.declarations.ResolvedReferenceTypeDeclaration
 import com.github.javaparser.resolution.types.ResolvedReferenceType
-import com.github.javaparser.resolution.types.ResolvedType
-import printError
 import repair.mutators.utils.*
 
 class VarToVarReplacement(val ignoreTypes: Boolean = false): MutatorRepair<NameExpr>() {
@@ -16,7 +12,7 @@ class VarToVarReplacement(val ignoreTypes: Boolean = false): MutatorRepair<NameE
         get() = 3
 
     override fun checkedRepair(program: BuggyProgram, nameExpr: NameExpr): List<NameExpr> {
-        val methodDecl = getEnclosing(nameExpr) ?: return emptyList()
+        val methodDecl = getEnclosingCallable(nameExpr) ?: return emptyList()
 //        val type = nameExpr.calculateResolvedType()
         val type = calcType(nameExpr) ?: return emptyList()
         if(type.isArray) return emptyList()

@@ -224,6 +224,12 @@ class BuggyProgram(val srcPath: String) {
                 .asSequence()
     }
 
+    fun findNodesInCallable(morpheusComp: MorpheusComponent): Sequence<Node> {
+        setAST(morpheusComp)
+        return currentTree.findAll(Node::class.java, { morpheusComp.hasSameCallable(it) })
+                .asSequence()
+    }
+
     private fun containsVar(node: Node, nameExpr: NameExpr): Boolean {
         return node.findAll(NameExpr::class.java, { it == nameExpr }).isNotEmpty()
     }

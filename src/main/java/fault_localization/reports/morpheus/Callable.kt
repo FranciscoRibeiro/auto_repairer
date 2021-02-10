@@ -17,4 +17,8 @@ class Callable(val fullSignature: String) {
                     .split(",") // split parameters
         }
     }
+
+    fun simpleParameterTypes(): List<String> {
+        return parameters.map { it.split(".").last() }
+    }
 }
