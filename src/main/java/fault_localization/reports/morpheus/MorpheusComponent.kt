@@ -2,9 +2,11 @@ package fault_localization.reports.morpheus
 
 import com.github.javaparser.ast.Node
 import com.github.javaparser.ast.body.CallableDeclaration
+import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration
 import com.github.javaparser.ast.type.Type
 import fault_localization.reports.FLComponent
 import repair.mutators.utils.getEnclosingCallable
+import repair.mutators.utils.getEnclosingClass
 
 class MorpheusComponent(val packageName: String,
                         val simpleClassName: String,
@@ -28,21 +30,26 @@ class MorpheusComponent(val packageName: String,
     }
 
     fun hasSameCallable(node: Node): Boolean {
-        val enclosingSignature = getEnclosingCallable(node)?.signature ?: return false
-        return signatureMatchCallable(enclosingSignature, callable)
+        val enclosingCallable = getEnclosingCallable(node) ?: return false
+        val enclosingClass = getEnclosingClass(enclosingCallable) ?: return false
+        return signatureMatchCallable(enclosingClass, enclosingCallable, callable)
     }
 
-    private fun signatureMatchCallable(signature: CallableDeclaration.Signature, callable: Callable): Boolean {
-        return nameMatchCallableName(signature, callable)
-                && typesMatchCallableTypes(signature, callable)
+    private fun signatureMatchCallable(classDecl: ClassOrInterfaceDeclaration, callableDecl: CallableDeclaration<*>, callable: Callable): Boolean {
+        return classNameMatch(classDecl, callable) && callableNameMatch(callableDecl, callable)
+                && typesMatch(callableDecl, callable)
     }
 
-    private fun nameMatchCallableName(signature: CallableDeclaration.Signature, callable: Callable): Boolean {
-        return signature.name == callable.name
+    private fun classNameMatch(classDecl: ClassOrInterfaceDeclaration, callable: Callable): Boolean {
+        return classDecl.nameAsString == callable.className
     }
 
-    private fun typesMatchCallableTypes(signature: CallableDeclaration.Signature, callable: Callable): Boolean {
-        return signature.parameterTypes.zip(callable.simpleParameterTypes())
+    private fun callableNameMatch(callableDecl: CallableDeclaration<*>, callable: Callable): Boolean {
+        return callableDecl.signature.name == callable.callableName
+    }
+
+    private fun typesMatch(callableDecl: CallableDeclaration<*>, callable: Callable): Boolean {
+        return callableDecl.signature.parameterTypes.zip(callable.simpleParameterTypes())
                 .all { (t1, t2) -> typeMatchString(t1, t2) }
     }
 

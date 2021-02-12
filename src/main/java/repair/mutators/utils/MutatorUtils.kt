@@ -2,10 +2,7 @@ package repair.mutators.utils
 
 import com.github.javaparser.StaticJavaParser
 import com.github.javaparser.ast.Node
-import com.github.javaparser.ast.body.CallableDeclaration
-import com.github.javaparser.ast.body.ConstructorDeclaration
-import com.github.javaparser.ast.body.MethodDeclaration
-import com.github.javaparser.ast.body.VariableDeclarator
+import com.github.javaparser.ast.body.*
 import com.github.javaparser.ast.expr.*
 import com.github.javaparser.ast.type.PrimitiveType
 import com.github.javaparser.ast.type.Type
@@ -23,6 +20,10 @@ import com.github.javaparser.symbolsolver.javaparsermodel.declarations.JavaParse
 import com.github.javaparser.symbolsolver.javaparsermodel.declarations.JavaParserSymbolDeclaration
 import printError
 import java.lang.IllegalStateException
+
+fun getEnclosingClass(node: Node): ClassOrInterfaceDeclaration? {
+    return node.findAncestor(ClassOrInterfaceDeclaration::class.java).orElse(null)
+}
 
 fun getEnclosingCallable(node: Node): CallableDeclaration<*>? {
     return getEnclosingMethod(node) ?: getEnclosingConstructor(node)
@@ -178,7 +179,7 @@ fun <T> resolveDecl(res: Resolvable<T>): T? {
         printError("Could not resolve named expression \"$res\"")
         null
     } catch (e: IllegalStateException){
-        e.printStackTrace()
+        printError("Illegal state. Node potentially not inserted: \"$res\"")
         null
     }
 }

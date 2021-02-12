@@ -1,19 +1,30 @@
 package fault_localization.reports.morpheus
 
 class Callable(val fullSignature: String) {
-    val name = extractName(fullSignature)
+    val className = extractClassName(fullSignature)
+    val callableName = extractCallableName(fullSignature)
     val parameters = extractParameters(fullSignature)
 
-    private fun extractName(fullSignature: String): String {
-        return fullSignature.split("(").first()
+    private fun splitNameAndParams(fullSignature: String): Pair<String, String> {
+        val split = fullSignature.split("(")
+        return Pair(split[0], "(" + split[1])
+    }
+
+    private fun extractCallableName(fullSignature: String): String {
+        return if(fullSignature.isEmpty()) ""
+        else splitNameAndParams(fullSignature).first.split("#")[1]
+    }
+
+    private fun extractClassName(fullSignature: String): String {
+        return if(fullSignature.isEmpty()) ""
+        else splitNameAndParams(fullSignature).first.split("#")[0]
     }
 
     private fun extractParameters(fullSignature: String): List<String> {
         return if (fullSignature.isEmpty()) emptyList()
         else {
-            val name = extractName(fullSignature)
-            return fullSignature.removePrefix(name) // isolate parameters -> (param1, param2, ...)
-                    .drop(1).dropLast(1) // remove parenthesStringis
+            val params = splitNameAndParams(fullSignature).second
+            return params.drop(1).dropLast(1) // remove parenthesis
                     .split(",") // split parameters
         }
     }
