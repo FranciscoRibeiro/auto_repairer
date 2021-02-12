@@ -13,7 +13,8 @@ class MorpheusComponent(val packageName: String,
                         val mutOp: String,
                         val callable: Callable,
                         val startEndLines: Pair<Int, Int>,
-                        val startEndColumns: Pair<Int, Int>): FLComponent {
+                        val startEndColumns: Pair<Int, Int>,
+                        val relativeStartEndLines: Pair<Int, Int>): FLComponent {
 
     fun hasSamePosition(node: Node): Boolean {
         val nodeRange = node.range.orElseGet { null } ?: return false

@@ -27,6 +27,7 @@ class MorpheusDiagnosis {
         val callables = fieldToList(record[8], "null,", "),").map { closeSignature(it) }
         val startEndLines = fieldToList(record[11])
         val startEndColumns = fieldToList(record[12])
+        val relativeStartEndLines = fieldToList(record[14])
         if (mutOps.size != startEndLines.size || startEndLines.size != startEndColumns.size) {
             return emptyList()
         } else {
@@ -37,7 +38,8 @@ class MorpheusDiagnosis {
                         mutOps[i],
                         Callable(callables[i]),
                         rangeToPair(startEndLines[i]),
-                        rangeToPair(startEndColumns[i])))
+                        rangeToPair(startEndColumns[i]),
+                        rangeToPair(relativeStartEndLines[i])))
             }
             return components
         }
