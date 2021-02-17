@@ -172,6 +172,7 @@ fun getRepairStrategy(strategy: String): RepairStrategy? {
         "-ms" -> MorpheusStrictRepair()
         "-ml" -> MorpheusLineRepair()
         "-mc" -> MorpheusCallableRepair()
+        "-mr" -> MorpheusRelativeRepair()
         else -> null
     }
 }
@@ -180,7 +181,7 @@ fun getFLType(strategy: String): FaultLocalizationType? {
     return when(strategy){
         "-br", "-ba", "-bn" -> FaultLocalizationType.SFL
         "-l", "-lr", "-lsr", "-la", "-lsa", "-ll" -> FaultLocalizationType.QSFL
-        "-ms", "-ml", "-mc" -> FaultLocalizationType.MORPHEUS
+        "-ms", "-ml", "-mc", "-mr" -> FaultLocalizationType.MORPHEUS
         else -> null
     }
 }

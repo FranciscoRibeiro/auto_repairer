@@ -14,7 +14,8 @@ class MorpheusComponent(val packageName: String,
                         val callable: Callable,
                         val startEndLines: Pair<Int, Int>,
                         val startEndColumns: Pair<Int, Int>,
-                        val relativeStartEndLines: Pair<Int, Int>): FLComponent {
+                        val relativeOldStartEndLines: Pair<Int, Int>,
+                        val relativeNewStartEndLines: Pair<Int, Int>): FLComponent {
 
     fun hasSamePosition(node: Node): Boolean {
         val nodeRange = node.range.orElseGet { null } ?: return false
@@ -34,6 +35,18 @@ class MorpheusComponent(val packageName: String,
         val enclosingCallable = getEnclosingCallable(node) ?: return false
         val enclosingClass = getEnclosingClass(enclosingCallable) ?: return false
         return signatureMatchCallable(enclosingClass, enclosingCallable, callable)
+    }
+
+    fun hasSameRelativeLine(node: Node): Boolean {
+        val nodeRange = node.range.orElseGet { null } ?: return false
+        val (startLine, endLine) = Pair(nodeRange.begin.line, nodeRange.end.line)
+        val enclosingCallable = getEnclosingCallable(node) ?: return false
+        val callableRange = enclosingCallable.range.orElse(null) ?: return false
+        val callableStartLine = callableRange.begin.line
+        return ((startLine - callableStartLine) == relativeNewStartEndLines.first
+                && (endLine - callableStartLine) == relativeNewStartEndLines.second)
+            || ((startLine - callableStartLine) == relativeOldStartEndLines.first
+                && (endLine - callableStartLine) == relativeOldStartEndLines.second)
     }
 
     private fun signatureMatchCallable(classDecl: ClassOrInterfaceDeclaration, callableDecl: CallableDeclaration<*>, callable: Callable): Boolean {

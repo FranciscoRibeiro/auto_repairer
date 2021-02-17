@@ -24,10 +24,11 @@ class MorpheusDiagnosis {
         val packageName = extractPackageName(record[2])
         val className = extractClassName(record[2])
         val mutOps = fieldToList(record[7])
-        val callables = fieldToList(record[8], "null,", "),").map { closeSignature(it) }
+        val callables = fieldToList(record[8], "null#null,", "),").map { closeSignature(it) }
         val startEndLines = fieldToList(record[11])
         val startEndColumns = fieldToList(record[12])
-        val relativeStartEndLines = fieldToList(record[14])
+        val relativeOldStartEndLines = fieldToList(record[13])
+        val relativeNewStartEndLines = fieldToList(record[14])
         if (mutOps.size != startEndLines.size || startEndLines.size != startEndColumns.size) {
             return emptyList()
         } else {
@@ -39,14 +40,16 @@ class MorpheusDiagnosis {
                         Callable(callables[i]),
                         rangeToPair(startEndLines[i]),
                         rangeToPair(startEndColumns[i]),
-                        rangeToPair(relativeStartEndLines[i])))
+                        rangeToPair(relativeOldStartEndLines[i]),
+                        rangeToPair(relativeNewStartEndLines[i])))
             }
             return components
         }
     }
 
     private fun closeSignature(signature: String): String {
-        return if (signature.isNotEmpty() && signature != "null" && signature.last() != ')') "$signature)"
+        return if(signature == "null#null") ""
+        else if (signature.isNotEmpty() && signature.last() != ')') "$signature)"
         else signature
     }
 
