@@ -32,4 +32,9 @@ class Callable(val fullSignature: String) {
     fun simpleParameterTypes(): List<String> {
         return parameters.map { it.split(".").last() }
     }
+
+    fun simpleCallableName(): String {
+        return if(callableName.contains(".")) callableName.split(".").last()
+        else callableName
+    }
 }

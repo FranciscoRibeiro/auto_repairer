@@ -59,7 +59,7 @@ class MorpheusComponent(val packageName: String,
     }
 
     private fun callableNameMatch(callableDecl: CallableDeclaration<*>, callable: Callable): Boolean {
-        return callableDecl.signature.name == callable.callableName
+        return callableDecl.signature.name == callable.simpleCallableName()
     }
 
     private fun typesMatch(callableDecl: CallableDeclaration<*>, callable: Callable): Boolean {
