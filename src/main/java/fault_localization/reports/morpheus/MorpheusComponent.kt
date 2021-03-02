@@ -38,15 +38,23 @@ class MorpheusComponent(val packageName: String,
     }
 
     fun hasSameRelativeLine(node: Node): Boolean {
+        val enclosing = when {
+            this.callable.callableName == "" -> {
+                val enclosingClass = getEnclosingClass(node) ?: return false
+                if(classNameMatch(enclosingClass, callable)) enclosingClass
+                else return false
+            }
+            hasSameCallable(node) -> getEnclosingCallable(node) ?: return false
+            else -> return false
+        }
         val nodeRange = node.range.orElseGet { null } ?: return false
         val (startLine, endLine) = Pair(nodeRange.begin.line, nodeRange.end.line)
-        val enclosingCallable = getEnclosingCallable(node) ?: return false
-        val callableRange = enclosingCallable.range.orElse(null) ?: return false
-        val callableStartLine = callableRange.begin.line
-        return ((startLine - callableStartLine) == relativeNewStartEndLines.first
-                && (endLine - callableStartLine) == relativeNewStartEndLines.second)
-            || ((startLine - callableStartLine) == relativeOldStartEndLines.first
-                && (endLine - callableStartLine) == relativeOldStartEndLines.second)
+        val enclosingRange = enclosing.range.orElse(null) ?: return false
+        val enclosingStartLine = enclosingRange.begin.line
+        return ((startLine - enclosingStartLine) == relativeNewStartEndLines.first
+                && (endLine - enclosingStartLine) == relativeNewStartEndLines.second)
+                || ((startLine - enclosingStartLine) == relativeOldStartEndLines.first
+                && (endLine - enclosingStartLine) == relativeOldStartEndLines.second)
     }
 
     private fun signatureMatchCallable(classDecl: ClassOrInterfaceDeclaration, callableDecl: CallableDeclaration<*>, callable: Callable): Boolean {

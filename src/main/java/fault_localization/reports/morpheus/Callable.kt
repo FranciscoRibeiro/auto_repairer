@@ -11,22 +11,23 @@ class Callable(val fullSignature: String) {
     }
 
     private fun extractCallableName(fullSignature: String): String {
-        return if(fullSignature.isEmpty()) ""
-        else splitNameAndParams(fullSignature).first.split("#")[1]
+        val secondPart = fullSignature.split("#")[1]
+        return if(secondPart == "null") ""
+        else secondPart.split("(")[0]
     }
 
     private fun extractClassName(fullSignature: String): String {
-        return if(fullSignature.isEmpty()) ""
-        else splitNameAndParams(fullSignature).first.split("#")[0]
+        val firstPart = fullSignature.split("#")[0]
+        return if(firstPart == "null") ""
+        else firstPart
     }
 
     private fun extractParameters(fullSignature: String): List<String> {
-        return if (fullSignature.isEmpty()) emptyList()
-        else {
-            val params = splitNameAndParams(fullSignature).second
-            return params.drop(1).dropLast(1) // remove parenthesis
-                    .split(",") // split parameters
-        }
+        val fullNameAndParams = fullSignature.split("(")
+        return if(fullNameAndParams.size == 2) {
+            fullNameAndParams[1].dropLast(1) //remove last parenthesis
+                    .split(",")
+        } else emptyList()
     }
 
     fun simpleParameterTypes(): List<String> {

@@ -24,7 +24,7 @@ class MorpheusDiagnosis {
         val packageName = extractPackageName(record[2])
         val className = extractClassName(record[2])
         val mutOps = fieldToList(record[7])
-        val callables = fieldToList(record[8], "null#null,", "),").map { closeSignature(it) }
+        val callables = fieldToList(record[8], ", ")
         val startEndLines = fieldToList(record[11])
         val startEndColumns = fieldToList(record[12])
         val relativeOldStartEndLines = fieldToList(record[13])
@@ -67,7 +67,8 @@ class MorpheusDiagnosis {
     }
 
     private fun fieldToList(field: String, vararg seps: String = arrayOf(",")): List<String> {
-        return field.drop(1).dropLast(1) //ignore open/close square brackets
+        return if(field == "[]") emptyList()
+        else field.drop(1).dropLast(1) //ignore open/close square brackets
                 .split(*seps).map { it.trim() }
     }
 

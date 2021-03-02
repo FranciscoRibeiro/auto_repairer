@@ -232,8 +232,7 @@ class BuggyProgram(val srcPath: String) {
 
     fun findNodesInRelativeLine(morpheusComp: MorpheusComponent): Sequence<Node> {
         setAST(morpheusComp)
-        return currentTree.findAll(Node::class.java,
-                { morpheusComp.hasSameCallable(it) && morpheusComp.hasSameRelativeLine(it) })
+        return currentTree.findAll(Node::class.java, { morpheusComp.hasSameRelativeLine(it) })
                 .asSequence()
     }
 
