@@ -1,6 +1,4 @@
-import java.io.File
-
-class Alternatives(val baseProgram: BuggyProgram, val alternatives: List<AlternativeProgram>) {
+class Alternatives(val baseProgram: BuggyProgram, val alternatives: List<MutatedProgram>) {
     /*fun save(){
         val repairDir = File(baseProgram.path, "repairs")
         if(!repairDir.exists()){ repairDir.mkdir() }

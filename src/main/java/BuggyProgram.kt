@@ -133,7 +133,7 @@ class BuggyProgram(val srcPath: String) {
     *  When using this function, if one is not sure the AST can be correctly set, the output should be checked */
     fun setAST(component: FLComponent): CompilationUnit? {
         val (packageName, className) = when(component) {
-//            is SFLComponent -> component.simpleClassName
+            is SFLComponent -> Pair(component.packageName, component.simpleClassName)
 //            is QSFLNode -> getClassName(component)
             is MorpheusComponent -> Pair(component.packageName, component.simpleClassName)
             else -> return null

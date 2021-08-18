@@ -9,7 +9,6 @@ import fault_localization.FaultLocalizationType
 import fault_localization.reports.qsfl.Landmark
 import fault_localization.reports.qsfl.Line
 import fault_localization.reports.qsfl.Parameter
-import fault_localization.reports.qsfl.QSFLNode
 import repair.mutators.MutatorRepair
 
 class LandmarkLinesRepair: RepairStrategy() {

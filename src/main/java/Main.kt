@@ -173,20 +173,21 @@ fun getRepairStrategy(strategy: String): RepairStrategy? {
         "-ml" -> MorpheusLineRepair()
         "-mc" -> MorpheusCallableRepair()
         "-mr" -> MorpheusRelativeRepair()
+        "-mask" -> MaskGenerator()
         else -> null
     }
 }
 
 fun getFLType(strategy: String): FaultLocalizationType? {
     return when(strategy){
-        "-br", "-ba", "-bn" -> FaultLocalizationType.SFL
+        "-br", "-ba", "-bn", "-mask" -> FaultLocalizationType.SFL
         "-l", "-lr", "-lsr", "-la", "-lsa", "-ll" -> FaultLocalizationType.QSFL
         "-ms", "-ml", "-mc", "-mr" -> FaultLocalizationType.MORPHEUS
         else -> null
     }
 }
 
-private fun loadReport(flType: FaultLocalizationType, reportPath: String): FLReport {
+fun loadReport(flType: FaultLocalizationType, reportPath: String): FLReport {
     return when (flType) {
         FaultLocalizationType.SFL -> SFLReport(reportPath)
         FaultLocalizationType.QSFL -> QSFLReport(reportPath)

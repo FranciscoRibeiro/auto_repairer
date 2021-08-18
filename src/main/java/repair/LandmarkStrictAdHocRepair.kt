@@ -4,15 +4,9 @@ import AlternativeProgram
 import BuggyProgram
 import com.github.javaparser.ast.Node
 import com.github.javaparser.ast.expr.BinaryExpr
-import com.github.javaparser.ast.expr.Expression
-import com.github.javaparser.ast.expr.IntegerLiteralExpr
 import fault_localization.FaultLocalizationType
 import fault_localization.reports.qsfl.Landmark
-import repair.mutators.ConditionalOperatorInsertion
-import repair.mutators.IntConstantModification
 import repair.mutators.MutatorRepair
-import repair.mutators.RelationalOperatorReplacement
-import repair.mutators.utils.isRelational
 
 class LandmarkStrictAdHocRepair: RepairStrategy() {
     override fun repair(program: BuggyProgram, basedOn: FaultLocalizationType): Sequence<AlternativeProgram> {

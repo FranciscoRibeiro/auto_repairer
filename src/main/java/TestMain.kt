@@ -39,7 +39,7 @@ private fun passTests(projDir: String): Boolean {
     return runCmd("mvn test", projDir) == 0
 }
 
-private fun setupPatch(projDir: String, fileName: String, fix: AlternativeProgram): AlternativeProgram{
+private fun setupPatch(projDir: String, fileName: String, fix: MutatedProgram): MutatedProgram{
     println("Fix: ${fix.insertedMutant}")
     File("$projDir/src/main/java/$fileName.java").writeText(fix.toString())
     return fix
@@ -117,7 +117,7 @@ fun main(args: Array<String>) {
             else emptySequence()
 
     var counter = 0
-    val alternatives = (landmarkAlternatives + bruteForceAlternatives).distinctBy { it.modifiedProgram }
+    val alternatives = emptySequence<MutatedProgram>()/*(landmarkAlternatives + bruteForceAlternatives).distinctBy { it.modifiedProgram }*/
     if(countOnly) { /* total number of potential patches */
         val alternativesStrict = alternatives.toList()
         println(alternativesStrict.size)
@@ -156,7 +156,7 @@ fun validateStrategyOption(strategy: String): String {
     }
 }
 
-fun savePatch(patchDir: String, n: Int, fix: AlternativeProgram) {
+fun savePatch(patchDir: String, n: Int, fix: MutatedProgram) {
     val dir = File(patchDir)
     if(!dir.exists()) dir.mkdirs()
     File("$patchDir/$n.java").writeText(fix.toString())

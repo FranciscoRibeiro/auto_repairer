@@ -35,8 +35,9 @@ class SFLDiagnosis {
 
     fun mostLikelyFaulty(upTo: Int): Sequence<Sequence<SFLComponent>> {
         return this.faultyLines.asSequence()
-                                .take(upTo)
-                                .map { it.asSequence().map { it.key } }
+                .takeWhile { it.entries.first().value != 0.0 } // Do NOT retrieve components with ZERO probability
+                .take(upTo)
+                .map { it.asSequence().map { it.key } }
 //        var counter = 0
 //        var currentProb = faultyLines.values.first().probability
 //        return faultyLines.keys.takeWhile { key ->

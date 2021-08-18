@@ -1,6 +1,7 @@
 package repair
 
 import AlternativeProgram
+import MutatedProgram
 import BuggyProgram
 import com.github.javaparser.ast.CompilationUnit
 import com.github.javaparser.ast.Modifier
@@ -61,11 +62,11 @@ abstract class RepairStrategy {
 
     abstract fun repair(program: BuggyProgram, basedOn: FaultLocalizationType): Sequence<AlternativeProgram>
 
-    fun modifyComponent(program: BuggyProgram, modifications: Sequence<Pair<Node, List<Node>>>): Sequence<AlternativeProgram> {
+    fun modifyComponent(program: BuggyProgram, modifications: Sequence<Pair<Node, List<Node>>>): Sequence<MutatedProgram> {
         return modifications.flatMap { buildAlternatives(program, it.first, it.second) }
     }
 
-    fun modifyComponent2(program: BuggyProgram, modifications: Sequence<Pair<FLComponent, Sequence<Pair<Node, List<Node>>>>>): Sequence<AlternativeProgram> {
+    fun modifyComponent2(program: BuggyProgram, modifications: Sequence<Pair<FLComponent, Sequence<Pair<Node, List<Node>>>>>): Sequence<MutatedProgram> {
         return modifications.flatMap {
             (comp, nodesAndMutants) ->
                 program.setAST(comp)
@@ -76,15 +77,15 @@ abstract class RepairStrategy {
         }
     }
 
-    private fun buildAlternatives(buggyProgram: BuggyProgram, originalNode: Node, mutantNodes: List<Node>): Sequence<AlternativeProgram> {
-        val alternatives = mutableListOf<AlternativeProgram>()
+    private fun buildAlternatives(buggyProgram: BuggyProgram, originalNode: Node, mutantNodes: List<Node>): Sequence<MutatedProgram> {
+        val alternatives = mutableListOf<MutatedProgram>()
 
         for(mutant in mutantNodes){
             val tree = /*setup(*/buggyProgram.getOriginalTree()/*)*/
             val nodeToReplace = findEqualNode(tree, originalNode) ?: return emptySequence()
             try {
                 nodeToReplace.replace(mutant)
-                alternatives.add(AlternativeProgram(mutant, tree))
+                alternatives.add(MutatedProgram(mutant, tree))
             } catch (e: UnsupportedOperationException){
                 printError("UnsupportedOperationException: Failed to replace \"$nodeToReplace\" with \"$mutant\"")
                 printError("parent: ${originalNode.parentNode.get()}")
