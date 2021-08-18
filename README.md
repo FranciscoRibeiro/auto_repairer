@@ -3,7 +3,7 @@ This is a mutation-based automatic repair tool that attempts to fix Java program
 
 To obtain a list of candidate patch files for a buggy program:
 
-```bash
+```sh
 java -jar auto_repairer.jar <project_path> <src_patch> <output_path> -ml|-ms|-mr|-mc <report_path>
 ```
 
@@ -24,8 +24,18 @@ Possible repair strategies are:
 
 ## Building the tool
 You can use Maven to build the _jar file_:
-```bash
+```sh
 mvn package
 ```
 
 The `target` directory will contain the generated _jar file_.
+
+**Note:** The repair tool needs to calculate expression types in order to perform the according  mutations. These calculations need access to information about the classes used to express many of the types a project may use. If a project uses third-party dependencies, these files may not be present in the project's directory. Failing to calculate the types of certain expressions may cause less patches to be produced.
+
+As such, it is important to provide the complete classpath when executing the repair tool:
+
+```sh
+java -cp auto_repairer.jar:<remaining_classpath> MainKt ...
+```
+
+In that case, the main class to specify is `MainKt` followed by the arguments described in the beginning.
